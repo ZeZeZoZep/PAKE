@@ -1,0 +1,30 @@
+# Ignorare la directory di build
+/build/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+
+# File binari
+*.o
+*.so
+*.a
+*.exe
+*.out
+*.dll
+
+# File generati dall'editor
+*.swp
+*.swo
+*.bak
+
+# File di log e temporanei
+*.log
+*.tmp
+
+
+/test/*
+!/test/*.cpp
+!/test/*.py
+!/test/*.h
+!/test/CMakeLists.txt
