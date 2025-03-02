@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cstdint>
+#include <Eigen/Dense>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 

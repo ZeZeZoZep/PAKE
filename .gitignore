@@ -1,4 +1,5 @@
 # Ignorare la directory di build
+.vscode
 /build/
 CMakeCache.txt
 CMakeFiles/
