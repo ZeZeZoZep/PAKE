@@ -2,7 +2,10 @@
 #include "../include/int.h"
 #include "../include/random.h"
 #include "../include/print.h"
+#include <vector>
+#include <Eigen/Dense>
 using namespace std;
+using namespace Eigen;
 const bool test_sampleNTT = false;
 const bool test_ntt = false;
 const bool test_mul = false;

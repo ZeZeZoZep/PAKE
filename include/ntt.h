@@ -8,6 +8,9 @@
 #include <Eigen/Dense>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
+#include "../include/polynomial.h"
+#include "../include/int.h"
+// Forward declaration della classe Polynomial (evita dipendenze circolari)
 
 const int N = 256;      // Dimensione del polinomio
 const uint16_t q = 3329; //modulo degli interi usati come coefficenti
@@ -29,18 +32,19 @@ const uint16_t zetas[128] = {
     2804, 1092, 403, 1026, 1143, 2150, 2775, 886,
     1722, 1212, 1874, 1029, 2110, 2935, 885, 2154
 };
-
+using namespace std;
+using namespace Eigen;
 uint16_t bitrev7(uint16_t x);
 uint16_t getZeta2(uint16_t i);
 std::pair<uint16_t, uint16_t> baseCaseMultiply(uint16_t f0, uint16_t f1,
     uint16_t g0, uint16_t g1,
     uint16_t zeta);
-std::vector<uint16_t> subNTTs(const std::vector<uint16_t>& f, const std::vector<uint16_t>& g) ;
-std::vector<uint16_t> addNTTs(const std::vector<uint16_t>& f, const std::vector<uint16_t>& g) ;
-std::vector<uint16_t> multiplyNTTs(const std::vector<uint16_t>& f, const std::vector<uint16_t>& g) ;
-std::vector<uint16_t> ntt(const std::vector<uint16_t>& f);
-std::vector<uint16_t> inv_ntt(const std::vector<uint16_t>& f_hat);
-void shake256(const unsigned char *input, size_t inlen, unsigned char *output, size_t outlen);
-std::vector<uint16_t> SampleNTT(const std::vector<uint8_t>& seed, uint8_t idx1, uint8_t idx2, uint16_t q);
-std::vector<uint16_t> SamplePolyCBD(const std::vector<uint8_t>& B, int eta, uint16_t q);
+Polynomial subNTTs(const Polynomial& f, const Polynomial& g) ;
+Polynomial addNTTs(const Polynomial& f, const Polynomial& g) ;
+Polynomial multiplyNTTs(const Polynomial& f, const Polynomial& g) ;
+Polynomial ntt(Polynomial f);
+Polynomial inv_ntt(Polynomial f_hat);
+void shake256(const vector<uint8_t>& input, vector<uint8_t>& output);
+Polynomial SampleNTT(const vector<uint8_t>& seed, uint8_t idx1, uint8_t idx2);
+Polynomial SamplePolyCBD(const vector<uint8_t>& B, int eta);
 #endif

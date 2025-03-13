@@ -1,9 +1,6 @@
 #include "../include/ntt.h"
-#include "../include/int.h"
-
+#include <vector>
 using namespace std;
-
-
 using namespace Eigen;
 
 // Funzione per invertire i bit
@@ -31,8 +28,8 @@ Vector2i baseCaseMultiply(Vector2i f, Vector2i g, uint16_t zeta) {
 }
 
 // Somma due rappresentazioni NTT con Eigen
-VectorXi addNTTs(const VectorXi &f, const VectorXi &g) {
-    VectorXi h = f + g;
+Polynomial addNTTs(const Polynomial &f, const Polynomial &g) {
+    Polynomial h = f + g;
     for (int i = 0; i < h.size(); i++) {
         h(i) = (h(i) % q + q) % q;  // Assicura valori positivi
     }
@@ -40,8 +37,8 @@ VectorXi addNTTs(const VectorXi &f, const VectorXi &g) {
 }
 
 // Sottrazione tra NTT con Eigen
-VectorXi subNTTs(const VectorXi &f, const VectorXi &g) {
-    VectorXi h = f - g;
+Polynomial subNTTs(const Polynomial &f, const Polynomial &g) {
+    Polynomial h = f - g;
     for (int i = 0; i < h.size(); i++) {
         h(i) = (h(i) % q + q) % q;  // Assicura valori positivi
     }
@@ -49,8 +46,8 @@ VectorXi subNTTs(const VectorXi &f, const VectorXi &g) {
 }
 
 // Moltiplicazione NTT con Eigen
-VectorXi multiplyNTTs(const VectorXi &f, const VectorXi &g) {
-    VectorXi h(N);
+Polynomial multiplyNTTs(const Polynomial &f, const Polynomial &g) {
+    Polynomial h(N);
     for (int i = 0; i < N / 2; i++) {
         uint16_t zeta = getZeta2(i);
         Vector2i result = baseCaseMultiply(f.segment<2>(2 * i), g.segment<2>(2 * i), zeta);
@@ -63,7 +60,7 @@ VectorXi multiplyNTTs(const VectorXi &f, const VectorXi &g) {
 }
 
 // Algoritmo NTT con Eigen
-VectorXi ntt(VectorXi f) {
+Polynomial ntt(Polynomial f) {
     int i = 1;
     for (int len = 128; len >= 2; len /= 2) {
         for (int start = 0; start < N; start += 2 * len) {
@@ -79,8 +76,8 @@ VectorXi ntt(VectorXi f) {
 }
 
 // Algoritmo Inverse NTT con Eigen
-VectorXi inv_ntt(VectorXi f_hat) {
-    VectorXi f = f_hat;
+Polynomial inv_ntt(Polynomial f_hat) {
+    Polynomial f = f_hat;
     int i = 127;
     for (int len = 2; len <= 128; len *= 2) {
         for (int start = 0; start < N; start += 2 * len) {
@@ -109,14 +106,14 @@ void shake256(const vector<uint8_t>& input, vector<uint8_t>& output) {
 }
 
 // Campionamento SampleNTT con Eigen
-VectorXi SampleNTT(const vector<uint8_t>& seed, uint8_t idx1, uint8_t idx2) {
+Polynomial SampleNTT(const vector<uint8_t>& seed, uint8_t idx1, uint8_t idx2) {
     vector<uint8_t> B(34);
     copy(seed.begin(), seed.end(), B.begin());
     B[32] = idx1;
     B[33] = idx2;
 
     unsigned char buffer[3];
-    VectorXi a(N);
+    Polynomial a(N);
     size_t j = 0;
 
     while (j < N) {
@@ -131,14 +128,15 @@ VectorXi SampleNTT(const vector<uint8_t>& seed, uint8_t idx1, uint8_t idx2) {
         B[32] ^= shake_output[0];
         B[33] ^= shake_output[1];
     }
+    a.isNTT=true;
     return a;
 }
 
 // Campionamento SamplePolyCBD con Eigen
-VectorXi SamplePolyCBD(const vector<uint8_t>& B, int eta) {
+Polynomial SamplePolyCBD(const vector<uint8_t>& B, int eta) {
     if (B.size() != 64u * eta) throw runtime_error("L'array B deve avere lunghezza 64*eta byte.");
 
-    VectorXi f(N);
+    Polynomial f(N);
     for (int i = 0; i < N; i++) {
         int x = 0, y = 0;
         int start = 2 * eta * i;
