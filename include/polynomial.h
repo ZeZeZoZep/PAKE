@@ -6,9 +6,11 @@
 #include "common.h"
 // Dichiarazione della classe Polynomial
 class Polynomial : public Eigen::VectorXi {
+private:
+    int q= PARAM_Q;
 public:
     using Eigen::VectorXi::VectorXi;  // Mantiene i costruttori di VectorXi
-    bool isNTT;
+    bool isNTT=false;
     Polynomial operator+(const Polynomial& other) const;
     Polynomial operator-(const Polynomial& other) const;
     // Operatore di moltiplicazione personalizzato (implementato in polynomial.cpp)
@@ -20,12 +22,17 @@ public:
     Polynomial fromNTT() const;
     // Metodo per stampare il polinomio
     void print() const {
-        std::cout << "Polynomial: [";
-        for (int i = 0; i < this->size(); i++) {
-            std::cout << (*this)[i] << (i < this->size() - 1 ? ", " : "");
-        }
-        std::cout << "]\n";
+        std::cout << *this << std::endl;
     }
 };
+inline std::ostream& operator<<(std::ostream& os, const Polynomial& poly) {
+    os << "Polynomial " << (poly.isNTT ? "(NTT)" : "(Standard)") << ": [";
+    for (int i = 0; i < poly.size(); i++) {
+        os << poly[i] << (i < poly.size() - 1 ? ", " : "");
+    }
+    os << "]";
+    return os;
+}
+
 
 #endif // POLYNOMIAL_H

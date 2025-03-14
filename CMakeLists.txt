@@ -19,10 +19,11 @@ set(C_FILE src/random_mgs.c)  # Sostituisci con il file C effettivo
 
 # Specifica i file C++ da compilare
 set(CPP_FILES 
-#    src/test.cpp
+    src/polynomial.cpp
     src/ntt.cpp
     src/int.cpp
     src/random.cpp
+    main.cpp
 )
 add_library(random_mgs OBJECT ${C_FILE})
 target_compile_options(random_mgs PRIVATE -Wall -O3 -march=native -mtune=native -fomit-frame-pointer -ftree-vectorize -funsafe-math-optimizations -mfpmath=sse -mavx2 -ftree-vectorize -maes ) 
@@ -32,5 +33,6 @@ add_executable(my_project $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
 
 # Aggiungi i test
 target_link_libraries(my_project OpenSSL::SSL OpenSSL::Crypto)
+
 enable_testing()
 add_subdirectory(test)

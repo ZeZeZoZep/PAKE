@@ -8,7 +8,7 @@
 #include "common.h"
 
 uint16_t P_random();
-int16_t gaussian_random(double mean, double std_dev);
+signed int gaussian_random(RR_t mean, RR_t std_dev);
 uint16_t uniform_q_random(int q);
 
 #endif

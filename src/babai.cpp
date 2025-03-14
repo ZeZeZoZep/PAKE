@@ -1,9 +1,19 @@
-#include <iostream>
-#include <Eigen/Dense>
-#include <vector>
-
-using namespace std;
-using namespace Eigen;
+#include "../include/babai.h"
+int S_numbers[PARAM_K*PARAM_K]= {
+    2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,
+    -1,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+    0, -1,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+    0,  0, -1,  2,  0,  0,  0,  0,  0,  0,  0,  0,
+    0,  0,  0, -1,  2,  0,  0,  0,  0,  0,  0,  0,
+    0,  0,  0,  0, -1,  2,  0,  0,  0,  0,  0,  0,
+    0,  0,  0,  0,  0, -1,  2,  0,  0,  0,  0,  0,
+    0,  0,  0,  0,  0,  0, -1,  2,  0,  0,  0,  0,
+    0,  0,  0,  0,  0,  0,  0, -1,  2,  0,  0,  1,
+    0,  0,  0,  0,  0,  0,  0,  0, -1,  2,  0,  0,
+    0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  2,  1,
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  1
+};
+int g_numbers[PARAM_K]= { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
 
 // Function to compute modular inverse
 int modInverse(int a, int q) {
@@ -87,26 +97,14 @@ int main() {
     int k = 12;
 
     // Define g vector
-    VectorXi g(k);
-    g << 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048;
+    VectorXi g =  Map<Vector<int, PARAM_K>>(g_numbers);
 
     // Define basis S_k
-    MatrixXi S_k(k, k);
-    S_k <<  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,
-           -1,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-            0, -1,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-            0,  0, -1,  2,  0,  0,  0,  0,  0,  0,  0,  0,
-            0,  0,  0, -1,  2,  0,  0,  0,  0,  0,  0,  0,
-            0,  0,  0,  0, -1,  2,  0,  0,  0,  0,  0,  0,
-            0,  0,  0,  0,  0, -1,  2,  0,  0,  0,  0,  0,
-            0,  0,  0,  0,  0,  0, -1,  2,  0,  0,  0,  0,
-            0,  0,  0,  0,  0,  0,  0, -1,  2,  0,  0,  1,
-            0,  0,  0,  0,  0,  0,  0,  0, -1,  2,  0,  0,
-            0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  2,  1,
-            0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  1;
+    //MatrixXi S_k(k, k);
+    MatrixXi S_k = Map<Matrix<int, PARAM_K, PARAM_K>>(S_numbers);
 
     // Compute V = q * S_k^{-T}
-    MatrixXd S_k_inv_T = S_k.cast<double>().transpose().inverse();
+    MatrixXd S_k_inv_T = S_k.cast<double>().inverse();
     MatrixXi V = (q * S_k_inv_T).cast<int>();
 
     cout << "\nMatrice duale V = q S_k^{-T}:\n" << V << endl;
@@ -117,7 +115,7 @@ int main() {
     cout << "\nMatrice ortonormalizzata con Gram-Schmidt:\n" << GS_V << endl;
 
     // Define b
-    int s = 10;
+    int s = 22;
     VectorXi e(k);
     e << 1, -1, 2, 2, -1, -2, 1, -2, 2, 3, -4, 1;
 

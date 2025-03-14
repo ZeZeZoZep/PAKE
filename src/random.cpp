@@ -21,14 +21,7 @@ uint16_t P_random() {
     }
 }
 
-// Funzione per generare numeri casuali da una distribuzione gaussiana
-int16_t gaussian_random(double mean, double std_dev) {
-    static random_device rd;  // Seed casuale
-    static mt19937 gen(rd()); // Generatore Mersenne Twister
-    normal_distribution<double> dist(mean, std_dev); // Distribuzione normale
-    
-    return static_cast<int16_t>(round(dist(gen))); // Arrotonda al numero intero più vicino
-}
+
 
 uint16_t uniform_q_random(int q) {
     static random_device rd;  // Seed casuale
@@ -42,19 +35,19 @@ uint16_t uniform_q_random(int q) {
 // Samples from distribution D_{c,sigma}, ie                                              
 // Samples an element in Z with probability proportionnal to e^{-(c-x)^2/2*(sigma^2)}    
 //==============================================================================
-signed int SampleZ(RR_t c, RR_t sigma)
+signed int gaussian_random(RR_t c, RR_t sigma)
 	{
 	//printf("SampleZ with sigma = %Lf, c = %Lf\n", sigma, c);
 	
 	return algorithmF(c, sigma);
 	}
 
-int main(){
+/* int main(){
     int num_samples = 10000;
     std::map<int, int> histogram;
 
     for (int i = 0; i < num_samples; ++i) {
-        int sample = SampleZ(0, PARAM_SIGMA);
+        int sample = gaussian_random(0, PARAM_SIGMA);
         histogram[sample]++;
     }
 
@@ -65,4 +58,4 @@ int main(){
         }
     }
     return 0;
-}
+} */
