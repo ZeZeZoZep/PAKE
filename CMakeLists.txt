@@ -23,6 +23,7 @@ set(CPP_FILES
     src/ntt.cpp
     src/int.cpp
     src/random.cpp
+    src/babai.cpp
     main.cpp
 )
 add_library(random_mgs OBJECT ${C_FILE})

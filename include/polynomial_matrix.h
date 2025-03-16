@@ -4,8 +4,9 @@
 #include <Eigen/Dense>
 #include "polynomial.h"
 #include "polynomial_traits.h"  // Includi la specializzazione NumTraits
-
+#include <type_traits>
 using namespace std;
+using namespace Eigen;
 // Classe che estende Eigen::Matrix<Polynomial> e aggiunge un metodo extra
 template<int Rows, int Cols>
 class PolynomialMatrix : public Eigen::Matrix<Polynomial, Rows, Cols> {
@@ -14,6 +15,9 @@ public:
     using Base::Base;  // Usa i costruttori della classe base
     template<int OtherCols>
     PolynomialMatrix<Rows, OtherCols> operator*(const PolynomialMatrix<Cols, OtherCols>& other) const;
+    template<int OtherCols>
+    PolynomialMatrix<Rows, OtherCols> operator*(const Matrix<int, Cols, OtherCols>& other) const;
+    void print_constants() const;
     PolynomialMatrix toNTT() const;
     PolynomialMatrix fromNTT() const;
 };
@@ -41,11 +45,35 @@ PolynomialMatrix<Rows, Cols>  PolynomialMatrix<Rows, Cols>::fromNTT() const {
     }
     return result;
 }
+// Implementazione di print()
+template<int Rows, int Cols>
+inline std::ostream& operator<<(std::ostream& os, const PolynomialMatrix<Rows, Cols>& poly) {
+    os << "Matrix: [\n";
+    for (int i = 0; i < Rows; i++) {
+        for (int j = 0; j < Cols; j++) {
+            os <<"{ " << i << ", " << j << " } " << poly(i, j);
+        }
+    }
+    os << "]"<<std::endl;
+    return os;
+}
+template<int Rows, int Cols>
+void PolynomialMatrix<Rows, Cols>::print_constants() const {
+    cout << "Matrix_constants: [\n";
+    for (int i = 0; i < Rows; ++i) {
+        for (int j = 0; j < Cols; ++j) {
+            cout << this->operator()(i, j)[0]<< (j < Cols - 1 ? ", " : "\n");  // Usa operator% già definito in Polynomial
+        }
+    }
+    cout<<"]"<<endl;
+}
+
 // Implementazione di `operator*`
 template<int Rows, int Cols>
 template<int OtherCols>
 PolynomialMatrix<Rows, OtherCols> PolynomialMatrix<Rows, Cols>::operator*(
     const PolynomialMatrix<Cols, OtherCols>& other) const {
+    cout<<"PERCHE!!!!"<<endl;  
     PolynomialMatrix<Rows, Cols> first=this->toNTT();
     PolynomialMatrix<Cols, OtherCols> second=other.toNTT();
     PolynomialMatrix<Rows, OtherCols> result;
@@ -56,6 +84,29 @@ PolynomialMatrix<Rows, OtherCols> PolynomialMatrix<Rows, Cols>::operator*(
             for (int k = 0; k < Cols; ++k) {
                 Polynomial prod=first(i, k)*second(k, j);
                 prod=prod.fromNTT();
+                result(i, j) = result(i, j) + prod;
+            }
+        }
+    }
+    return result;
+}
+// Implementazione di `operator*`
+template<int Rows, int Cols>
+template<int OtherCols>
+PolynomialMatrix<Rows, OtherCols> PolynomialMatrix<Rows, Cols>::operator*(
+    const Matrix<int, Cols, OtherCols>& other) const {
+/*     if (other.rows() != Rows || other.cols() != Cols) {
+        throw std::invalid_argument("Le dimensioni delle matrici devono corrispondere per la moltiplicazione elemento per elemento.");
+    } */
+    
+    PolynomialMatrix<Rows, OtherCols> result;
+    for (int i = 0; i < Rows; ++i) {
+        for (int j = 0; j < other.cols(); ++j) {
+            Polynomial a(PARAM_N);
+            result(i, j)=a.setZero();
+            for (int k = 0; k < Cols; ++k) {
+                Polynomial prod=(*this)(i, k)*static_cast<int>(other(k, j));
+                
                 result(i, j) = result(i, j) + prod;
             }
         }

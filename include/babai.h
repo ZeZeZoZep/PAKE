@@ -6,5 +6,6 @@
 #include "../include/common.h"
 using namespace std;
 using namespace Eigen;
+pair<int, VectorXi> babai_nearest_plane(const VectorXi& b);
 
-#endif
+#endif // BABAI_H

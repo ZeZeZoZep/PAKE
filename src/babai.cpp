@@ -31,13 +31,13 @@ VectorXi compute_cj(const MatrixXi& V, const VectorXi& g, int q) {
 
     int g_dot_g = g.dot(g) % q;
     long int g_dot_g_inv = modInverse(g_dot_g, q);
-    cout<<g_dot_g_inv<<endl;
+    //cout<<g_dot_g_inv<<endl;
 
     for (int j = 0; j < k; j++) {
         int c_j = (V.col(j).dot(g) * g_dot_g_inv)% q;
         if (c_j < 0) c_j += q; // Ensure non-negative
         c(j) = c_j;
-        cout<<V.col(j).dot(g)<<"  "<<V.col(j).dot(g) * g_dot_g_inv<<"  "<<c_j<<endl;
+        //cout<<V.col(j).dot(g)<<"  "<<V.col(j).dot(g) * g_dot_g_inv<<"  "<<c_j<<endl;
     }
     return c;
 }
@@ -58,13 +58,30 @@ MatrixXd gram_schmidt(const MatrixXi& V) {
 }
 
 // Babai’s Nearest Plane Algorithm
-pair<int, VectorXi> babai_nearest_plane(const MatrixXi& V, const MatrixXd& GS_V, const VectorXi& b, const VectorXi& g, int q) {
+pair<int, VectorXi> babai_nearest_plane(const VectorXi& b) {
+    //cout<< "vector b: " << b << endl;
+    int q= PARAM_Q;
+    // Define g vector
+    VectorXi g =  Map<Vector<int, PARAM_K>>(g_numbers);
+
+    // Define basis S_k
+    //MatrixXi S_k(k, k);
+    MatrixXi S_k = Map<Matrix<int, PARAM_K, PARAM_K>>(S_numbers);
+
+    // Compute V = q * S_k^{-T}
+    MatrixXd S_k_inv_T = S_k.cast<double>().inverse();
+    MatrixXi V = (q * S_k_inv_T).cast<int>();
+
+    //cout << "\nMatrice duale V = q S_k^{-T}:\n" << V << endl;
+
+    // Compute Gram-Schmidt orthogonalization
+    MatrixXd GS_V = gram_schmidt(V);
     int k = V.cols();
     VectorXd b_current = b.cast<double>();
     VectorXi rounded_l = VectorXi::Zero(k);
 
     VectorXi c = compute_cj(V, g, q);
-    cout << "\nVector c:\n" << c.transpose() << endl;
+    //cout << "\nVector c:\n" << c.transpose() << endl;
     // Step 2: Iterate backwards from k to 1
     for (int j = k - 1; j >= 0; j--) {
         VectorXd v_star_j = GS_V.col(j);
@@ -91,7 +108,7 @@ pair<int, VectorXi> babai_nearest_plane(const MatrixXi& V, const MatrixXd& GS_V,
     return {z, e};
 }
 
-// Main Function
+/* // Main Function
 int main() {
     int q = 3329;
     int k = 12;
@@ -131,4 +148,4 @@ int main() {
     cout << "Errore e:\n" << e_result.transpose() << endl;
 
     return 0;
-}
+} */

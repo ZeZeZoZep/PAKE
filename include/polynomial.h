@@ -15,6 +15,7 @@ public:
     Polynomial operator-(const Polynomial& other) const;
     // Operatore di moltiplicazione personalizzato (implementato in polynomial.cpp)
     Polynomial operator*(const Polynomial& other) const;
+    Polynomial operator*(int scalar) const;
         // Converte il polinomio nella sua rappresentazione NTT
     Polynomial toNTT() const;
 
@@ -30,7 +31,7 @@ inline std::ostream& operator<<(std::ostream& os, const Polynomial& poly) {
     for (int i = 0; i < poly.size(); i++) {
         os << poly[i] << (i < poly.size() - 1 ? ", " : "");
     }
-    os << "]";
+    os << "]"<<std::endl;
     return os;
 }
 

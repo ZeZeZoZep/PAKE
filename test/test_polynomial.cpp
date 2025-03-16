@@ -92,6 +92,30 @@ TEST(PolynomialTest, Multiplication3) {
         EXPECT_EQ(p_original[i], 8*p1[i]);
 }
 
+// Test per la moltiplicazione di polinomi
+TEST(PolynomialTest, Multiplication_constant1) {
+    Polynomial p1(256);
+    for(int i=0; i<256; i++)
+        p1[i] = 1;
+
+
+    Polynomial prod = p1 * 8; // Sostituire con la logica della tua NTT multiplication
+    for(int i=0; i<256; i++)
+        EXPECT_EQ(prod[i], 8*p1[i]);
+}
+
+// Test per la moltiplicazione di polinomi
+TEST(PolynomialTest, Multiplication_constant2) {
+    Polynomial p1(256);
+    for(int i=0; i<256; i++)
+        p1[i] = 1;
+
+
+    Polynomial prod = p1 * -1; // Sostituire con la logica della tua NTT multiplication
+    for(int i=0; i<256; i++)
+        EXPECT_EQ(prod[i], 3328);
+}
+
 // Esegue tutti i test
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

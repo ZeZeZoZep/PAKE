@@ -3,11 +3,12 @@
 #include <random>
 #include <iostream>
 #include <Eigen/Dense>
-#include "babai.h"
+
 #include "random.h"
 #include "ntt.h"
 #include "polynomial_matrix.h"
 #include "common.h"
+#include "babai.h"
 using namespace std;
 using namespace Eigen;
 
@@ -31,15 +32,38 @@ class TrapdoorHandler {
             }
             return ret;
         }
+    public:
         template<int Rows, int Cols>
-        static PolynomialMatrix<Rows, Cols> generate_gaussian_constant_polymatrix() {
+        static PolynomialMatrix<Rows, Cols> generate_uniform_constant_polymatrix() {
             PolynomialMatrix<Rows, Cols> ret;
             for(int i=0; i<Rows; i++) {
                 for(int j=0; j<Cols; j++) {
                     Polynomial poly(PARAM_N);
                     poly.setZero();
-                    poly[0]=gaussian_random(0, PARAM_SIGMA);
+                    poly[0]=uniform_q_random(PARAM_Q);
                     ret(i,j)=poly;
+                }
+            }
+            return ret;
+        }
+        template<int Rows, int Cols>
+        static Matrix<int,Rows,Cols> generate_gaussian_constant_polymatrix() {
+            Matrix<int,Rows,Cols> ret;
+            for(int i=0; i<Rows; i++) {
+                for(int j=0; j<Cols; j++) {
+//gaussian_random(0, PARAM_SIGMA);
+                    ret(i,j)=gaussian_random(0, PARAM_SIGMA);
+                    }
+                }
+            return ret;
+        }
+        template<int Rows, int Cols>
+        static Matrix<int,Rows, Cols> generate_identity_matrix() {
+            Matrix<int,Rows, Cols> ret;
+            for(int i=0; i<Rows; i++) {
+                for(int j=0; j<Cols; j++) {
+                    if(i==j)ret(i,j)=1;
+                    else ret(i,j)=0 ;
                     }
                 }
             return ret;
@@ -58,27 +82,32 @@ class TrapdoorHandler {
             return ret;
         }
         template<int Rows, int Cols>
+        static Matrix<int,Rows, Cols> generate_gadget_matrix() {
+            Matrix<int,Rows, Cols> ret;
+            for(int i=0; i<Rows; i++) {
+                for(int j=0; j<Cols; j++) {
+                    if(i==static_cast<int>(j/PARAM_K))ret(i,j)=(1 << j%PARAM_K);
+                }
+            }
+            return ret;
+        }
+        template<int Rows, int Cols>
         static PolynomialMatrix<Rows, Cols> generate_gadget_polymatrix() {
             PolynomialMatrix<Rows, Cols> ret;
             for(int i=0; i<Rows; i++) {
                 for(int j=0; j<Cols; j++) {
                     Polynomial poly(PARAM_N);
                     poly.setZero();
-                    if(i==static_cast<int>(j/PARAM_K))poly[0]=(1 << i);
+                    if(i==static_cast<int>(j/PARAM_K))poly[0]=(1 << j%PARAM_K);
                     ret(i,j)=poly;
                     }
                 }
             return ret;
         }
-    public:
+
         // Algoritmo per generare il vettore `a` e la trapdoor `R`
-    static pair<PolynomialMatrix<PARAM_D, PARAM_M>,PolynomialMatrix<2*PARAM_D,PARAM_D*PARAM_K>> Trapgen();
+    static pair<PolynomialMatrix<PARAM_D, PARAM_M>,Matrix<int,2*PARAM_D,PARAM_D*PARAM_K>> Trapgen();
+    static pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1,PARAM_M>> Invert(PolynomialMatrix<1,PARAM_M>& b,PolynomialMatrix<2*PARAM_D,PARAM_D*PARAM_K>& T);
 };
 #endif
 
-/* 
-void Invert(int *b, int **A, int **R, int q, int n, int m, int k, int *s, int *e);
-
-void TrapGen(int **A, int **R, int n, int m, int q);
-
-int* oracle(int *s,int **A, int *e, int Rows , int Cols, int q); */

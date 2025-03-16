@@ -4,7 +4,7 @@
 #define PARAM_Q 3329
 #define PARAM_N 256
 #define PARAM_D 4
-#define PARAM_SIGMA 7.00
+#define PARAM_SIGMA 2.00
 #define NEEDED_AES_FOR_SALT 3
 
 typedef long double RR_t;

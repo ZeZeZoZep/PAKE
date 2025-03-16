@@ -131,7 +131,57 @@ TEST(PolynomialMatrixTest, Multiplication1) {
     EXPECT_EQ(C(1, 0)[2], 8);
     EXPECT_EQ(C(1, 1)[3], 8);
 }
+// Test per la moltiplicazione di polinomi
+TEST(PolynomialMatrixTest, Multiplication_constant1) {
+    PolynomialMatrix<4, 4> A;
+    for(int i=0; i<4; i++){
+        for(int j=0; j<4; j++){
+            Polynomial p1(256);
+            for(int k=0; k<256; k++){
+                p1[k] = 1;
+            }
+            A(i, j)=p1;
+        }
+    }
+    Matrix<int, 4, 4> mat(4,4);
+    for(int i=0; i<4; i++)
+        for(int j=0; j<4; j++)
+            mat(i, j)=2;
 
+    PolynomialMatrix<4, 4> C = A * mat;
+
+    //std::cout << C << std::endl;
+    EXPECT_EQ(C(0, 0)[0], 8);
+    EXPECT_EQ(C(0, 1)[1], 8);
+    EXPECT_EQ(C(1, 0)[2], 8);
+    EXPECT_EQ(C(1, 1)[3], 8);
+}
+
+// Test per la moltiplicazione di polinomi
+TEST(PolynomialMatrixTest, Multiplication_constant2) {
+    PolynomialMatrix<4, 4> A;
+    for(int i=0; i<4; i++){
+        for(int j=0; j<4; j++){
+            Polynomial p1(256);
+            for(int k=0; k<256; k++){
+                p1[k] = 1;
+            }
+            A(i, j)=p1;
+        }
+    }
+    Matrix<int, 4, 4> mat(4,4);
+    for(int i=0; i<4; i++)
+        for(int j=0; j<4; j++)
+            mat(i, j)=-1;
+
+    PolynomialMatrix<4, 4> C = A * mat;
+
+    //std::cout << C << std::endl;
+    EXPECT_EQ(C(0, 0)[0], 3325);
+    EXPECT_EQ(C(0, 1)[1], 3325);
+    EXPECT_EQ(C(1, 0)[2], 3325);
+    EXPECT_EQ(C(1, 1)[3], 3325);
+}
 // Esegue tutti i test
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

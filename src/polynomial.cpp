@@ -40,12 +40,21 @@ Polynomial Polynomial::operator+(const Polynomial& other) const {
 // Operatore di differenza tra due polinomi con riduzione modulo `mod`
 Polynomial Polynomial::operator-(const Polynomial& other) const {
     if (this->size() != other.size()) {
-        throw std::invalid_argument("I polinomi devono avere la stessa dimensione per essere sommati!");
+        throw std::invalid_argument("I polinomi devono avere la stessa dimensione per essere sottratti!");
     }
     Polynomial result(this->size());
     for (int i = 0; i < this->size(); i++) {
         result[i] = (((*this)[i] - other[i]) % this->q + this->q) % this->q;
     }
+    return result;
+}
+// Sovrascrive l'operatore * per usare la moltiplicazione in NTT tra polinomi
+Polynomial Polynomial::operator*(int scalar) const {
+    // Esegui la moltiplicazione NTT
+    Polynomial result(this->size());
+    for (int i = 0; i < this->size(); i++) {
+        result[i] = (((*this)[i] * scalar) % this->q + this->q) % this->q;
+    }        
     return result;
 }
 // Sovrascrive l'operatore * per usare la moltiplicazione in NTT tra polinomi

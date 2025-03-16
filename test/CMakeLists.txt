@@ -18,7 +18,7 @@ add_executable(test_polynomial_matrix test_polynomial_matrix.cpp ../src/int.cpp 
 target_link_libraries(test_polynomial_matrix random_mgs gtest gtest_main OpenSSL::SSL OpenSSL::Crypto)
 
 
-add_executable(test_trapdoor test_trapdoor.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/trapdoor_handler.cpp ../src/random.cpp)
+add_executable(test_trapdoor test_trapdoor.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/trapdoor_handler.cpp ../src/random.cpp ../src/babai.cpp)
 target_link_libraries(test_trapdoor random_mgs gtest gtest_main OpenSSL::SSL OpenSSL::Crypto)
 
 # Registra i test con CTest
