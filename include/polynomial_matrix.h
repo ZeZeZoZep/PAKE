@@ -73,9 +73,21 @@ template<int Rows, int Cols>
 template<int OtherCols>
 PolynomialMatrix<Rows, OtherCols> PolynomialMatrix<Rows, Cols>::operator*(
     const PolynomialMatrix<Cols, OtherCols>& other) const {
-    cout<<"PERCHE!!!!"<<endl;  
-    PolynomialMatrix<Rows, Cols> first=this->toNTT();
-    PolynomialMatrix<Cols, OtherCols> second=other.toNTT();
+    cout<<"PERCHE!!!!"<<endl;
+    PolynomialMatrix<Rows, Cols> first;
+    PolynomialMatrix<Cols, OtherCols> second;
+    for(int i=0;i<Rows;i++){
+        for (int j = 0; j < Cols; ++j) {
+            first(i,j)=this->operator()(i,j).mod(PARAM_Q);
+        }
+    }
+    for(int i=0;i<Cols;i++){
+        for (int j = 0; j < OtherCols; ++j) {
+            second(i,j)=other(i,j).mod(PARAM_Q);
+        }
+    }   
+    first=first.toNTT();
+    second=second.toNTT();
     PolynomialMatrix<Rows, OtherCols> result;
     for (int i = 0; i < Rows; ++i) {
         for (int j = 0; j < OtherCols; ++j) {

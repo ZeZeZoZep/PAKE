@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "polynomial.h"
-
+#include "random.h"
 // Test per la somma di polinomi
 TEST(PolynomialTest, Addition1) {
     Polynomial p1(3);
@@ -53,6 +53,7 @@ TEST(PolynomialTest, Multiplication1) {
     Polynomial p2_ntt = p2.toNTT();
     Polynomial prod = p1_ntt * p2_ntt; // Sostituire con la logica della tua NTT multiplication
     Polynomial p_original = prod.fromNTT();
+
     for(int i=0; i<256; i++)
         EXPECT_EQ(p_original[i], p1[i]);
 }
@@ -91,6 +92,32 @@ TEST(PolynomialTest, Multiplication3) {
     for(int i=0; i<256; i++)
         EXPECT_EQ(p_original[i], 8*p1[i]);
 }
+TEST(PolynomialTest, NTTConversion2) {
+    Polynomial p1(256);
+    for(int i=0; i<256; i++)
+        p1[i] = -1;
+    Polynomial p2(256);
+    for(int i=0; i<256; i++)
+        p2[i] = 3328;
+    Polynomial p1_mod = p1.mod(PARAM_Q);
+    std::cout<<p1_mod<<std::endl;
+
+    int count=0;
+    for(int i=0; i<256; i++)
+        if(p1_mod[i]!=p2[i])count++;
+    EXPECT_EQ(count, 0);    
+
+    Polynomial p1_ntt = p1.toNTT();
+    Polynomial p2_ntt = p2.toNTT();
+    std::cout<<p1_ntt<<std::endl;
+
+    std::cout<<p2_ntt<<std::endl;
+
+    count=0;
+    for(int i=0; i<256; i++)
+        if(p1_ntt[i]!=p2_ntt[i])count++;
+    EXPECT_GT(count, 0);
+} 
 
 // Test per la moltiplicazione di polinomi
 TEST(PolynomialTest, Multiplication_constant1) {

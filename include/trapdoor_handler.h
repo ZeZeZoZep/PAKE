@@ -13,7 +13,7 @@ using namespace std;
 using namespace Eigen;
 
 class TrapdoorHandler {
-    private:
+    public:
         template<int Rows, int Cols>
         static PolynomialMatrix<Rows, Cols> generate_uniform_polymatrix() {
             vector<uint8_t> seed(32);
@@ -30,9 +30,9 @@ class TrapdoorHandler {
                     ret(i,j)=SampleNTT(seed, idx1, idx2);
                 }
             }
-            return ret;
+            
+            return ret.fromNTT();
         }
-    public:
         template<int Rows, int Cols>
         static PolynomialMatrix<Rows, Cols> generate_uniform_constant_polymatrix() {
             PolynomialMatrix<Rows, Cols> ret;
@@ -47,14 +47,33 @@ class TrapdoorHandler {
             return ret;
         }
         template<int Rows, int Cols>
-        static Matrix<int,Rows,Cols> generate_gaussian_constant_polymatrix() {
+        static PolynomialMatrix<Rows, Cols> generate_gaussian_constant_polymatrix() {
+            PolynomialMatrix<Rows, Cols> ret;
+            for(int i=0; i<Rows; i++) {
+                for(int j=0; j<Cols; j++) {
+                    Polynomial poly(PARAM_N);
+                    poly.setZero();
+                    poly[0]=gaussian_random(0, PARAM_SIGMA);
+                    for(int k=0; k<PARAM_N; k++){
+                        //poly[k]=P_random();
+                        //poly[k]=gaussian_random(0, PARAM_SIGMA);
+                        //if(poly[k]<0)poly[k]=poly[k]*(-1);
+                    }
+                    //if(poly[0]<0)poly[0]=poly[0]*(-1);
+                    ret(i,j)=poly;
+                }
+            }
+            return ret;
+        }
+        template<int Rows, int Cols>
+        static Matrix<int,Rows,Cols> generate_gaussian_matrix() {
             Matrix<int,Rows,Cols> ret;
             for(int i=0; i<Rows; i++) {
                 for(int j=0; j<Cols; j++) {
 //gaussian_random(0, PARAM_SIGMA);
-                    ret(i,j)=gaussian_random(0, PARAM_SIGMA);
-                    }
+                    ret(i,j)=2;//gaussian_random(0, PARAM_SIGMA);
                 }
+            }
             return ret;
         }
         template<int Rows, int Cols>
@@ -106,7 +125,7 @@ class TrapdoorHandler {
         }
 
         // Algoritmo per generare il vettore `a` e la trapdoor `R`
-    static pair<PolynomialMatrix<PARAM_D, PARAM_M>,Matrix<int,2*PARAM_D,PARAM_D*PARAM_K>> Trapgen();
+    static pair<PolynomialMatrix<PARAM_D, PARAM_M>,PolynomialMatrix<2*PARAM_D,PARAM_D*PARAM_K>> Trapgen();
     static pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1,PARAM_M>> Invert(PolynomialMatrix<1,PARAM_M>& b,PolynomialMatrix<2*PARAM_D,PARAM_D*PARAM_K>& T);
 };
 #endif

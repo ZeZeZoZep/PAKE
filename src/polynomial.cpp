@@ -69,4 +69,15 @@ Polynomial Polynomial::operator*(const Polynomial& other) const {
     result.isNTT=true;
     return result;
 }
+Polynomial Polynomial::mod(const int& mod) const {
+
+    // Esegui la moltiplicazione NTT
+    Polynomial result(this->size());
+    for (int i = 0; i < this->size(); i++)
+    {
+        result[i] =         result[i] = ((*this)[i] % mod + mod) % mod;
+
+    }
+    return result;
+}
 

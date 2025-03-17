@@ -5,7 +5,7 @@
 #include <map>
 using namespace std;
 
-uint16_t P_random() {
+signed int P_random() {
     static random_device rd;  // Seed per il generatore
     static mt19937 gen(rd()); // Mersenne Twister
     static uniform_real_distribution<double> dist(0.0, 1.0); // Distribuzione uniforme [0,1]
@@ -17,7 +17,7 @@ uint16_t P_random() {
     } else if (rand_num < 0.75) {
         return 1;   // Probabilità 1/4
     } else {
-        return 2;  // Probabilità 1/4
+        return -1;  // Probabilità 1/4
     }
 }
 

@@ -21,6 +21,7 @@ public:
 
     // Converte un polinomio da NTT alla forma originale
     Polynomial fromNTT() const;
+    Polynomial mod(const int& mod) const;
     // Metodo per stampare il polinomio
     void print() const {
         std::cout << *this << std::endl;

@@ -4,20 +4,26 @@ using namespace std;
 using namespace Eigen;
 
 
-pair<PolynomialMatrix<PARAM_D, PARAM_M>,Matrix<int,2*PARAM_D,PARAM_D*PARAM_K>> TrapdoorHandler::Trapgen() {
+pair<PolynomialMatrix<PARAM_D, PARAM_M>,PolynomialMatrix<2*PARAM_D,PARAM_D*PARAM_K>> TrapdoorHandler::Trapgen() {
     // 1. Generiamo la matrice a_0 in modo uniforme in R_q^{d × d}
     PolynomialMatrix<PARAM_D, PARAM_D> A_hat = generate_uniform_polymatrix<PARAM_D, PARAM_D>();
     //cout << "Matrice a (a0):\n" << A_hat << "\n\n";
 
     // 3. Generiamo la matrice T ∈ R^{2d×dk} con distribuzione χ
-    Matrix<int,2*PARAM_D,PARAM_D*PARAM_K> T = generate_gaussian_constant_polymatrix<2*PARAM_D,PARAM_D*PARAM_K>();
+    PolynomialMatrix<2*PARAM_D,PARAM_D*PARAM_K> T = generate_gaussian_constant_polymatrix<2*PARAM_D,PARAM_D*PARAM_K>();
+/*     for(int i=0; i<2*PARAM_D; i++){
+        for(int j=0; j<PARAM_D*PARAM_K; j++){
+            if(T(i,j)[0]<0)T(i,j)[0]=T(i,j)[0]*-1;
+        }
+    } */
+    
     PolynomialMatrix<PARAM_D, PARAM_D> I = generate_identity_polymatrix<PARAM_D, PARAM_D>();
     
 
     PolynomialMatrix<PARAM_D, 2*PARAM_D> A_first;
     A_first << I , A_hat;
     PolynomialMatrix<PARAM_D, PARAM_D*PARAM_K> G = generate_gadget_polymatrix<PARAM_D, PARAM_D*PARAM_K>();
-    G.print_constants();
+    //G.print_constants();
     // 4. Generiamo g come un vettore riga deterministico (g ∈ R_q^{1×k})
     // 5. Calcoliamo il secondo blocco di `a`
     PolynomialMatrix<PARAM_D,PARAM_D*PARAM_K> A1 = (G - A_first * T);
@@ -36,7 +42,7 @@ pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1,PARAM_M>> TrapdoorHandler::
     //cout <<"Creazione RI..."<<endl;
     RI.block(0,0,2*PARAM_D,PARAM_D*PARAM_K) = T;
     RI.block(2*PARAM_D,0,PARAM_D*PARAM_K,PARAM_D*PARAM_K) = I;
-    //cout << T << endl;
+    //cout <<  << endl;
     //cout << "Fatto" << endl;
     
     //cout <<"Creazione b_hat..."<<endl;
@@ -63,7 +69,7 @@ pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1,PARAM_M>> TrapdoorHandler::
                 //cout <<"x "<< x <<endl;
                 bjx(x)=bj(0,x)[y];
             }
-            //if(y==0)cout <<bjx<<endl;
+            //cout <<"sborra\n"<<bjx<<endl;
             //cout <<"babai nearest plane..."<<endl;
             auto [z, e_result] = babai_nearest_plane(bjx);
             //cout <<"fatto."<<endl;
