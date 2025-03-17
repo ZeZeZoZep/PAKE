@@ -53,8 +53,11 @@ class TrapdoorHandler {
                 for(int j=0; j<Cols; j++) {
                     Polynomial poly(PARAM_N);
                     poly.setZero();
-                    poly[0]=gaussian_random(0, PARAM_SIGMA);
+                    //poly[2]=gaussian_random(0, PARAM_SIGMA);
                     for(int k=0; k<PARAM_N; k++){
+                        if(k%2==0){
+                            poly[k]=gaussian_random(0, PARAM_SIGMA);
+                        }
                         //poly[k]=P_random();
                         //poly[k]=gaussian_random(0, PARAM_SIGMA);
                         //if(poly[k]<0)poly[k]=poly[k]*(-1);
