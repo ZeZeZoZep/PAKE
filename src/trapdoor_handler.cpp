@@ -53,6 +53,11 @@ pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1,PARAM_M>> TrapdoorHandler::
 
     PolynomialMatrix<1, PARAM_D> s;
     PolynomialMatrix<1, PARAM_M> e;
+    for(int x=0; x<PARAM_M; x++){
+        e(0,x)=Polynomial(PARAM_N);
+        e(0,x).setZero();
+    }
+
     for(int j=0; j<PARAM_K*PARAM_D; j+=PARAM_K){
         //cout <<"j "<< j <<endl;
         Polynomial s_j(PARAM_N);
@@ -60,20 +65,16 @@ pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1,PARAM_M>> TrapdoorHandler::
             //cout <<"y "<< y <<endl;
             PolynomialMatrix<1, PARAM_K> bj=b_hat.block(0,j,1,PARAM_K);
             VectorXi bjx(PARAM_K);
-            if(y==0){
-                //cout << j << endl;
-                //cout <<bj<<endl;
-            }
-
             for(int x=0; x<PARAM_K; x++){
-                //cout <<"x "<< x <<endl;
                 bjx(x)=bj(0,x)[y];
             }
-            //cout <<"sborra\n"<<bjx<<endl;
-            //cout <<"babai nearest plane..."<<endl;
             auto [z, e_result] = babai_nearest_plane(bjx);
-            //cout <<"fatto."<<endl;
+            //cout<<e_result<<endl;
             s_j[y]=z;
+            for(int x=0; x<PARAM_K; x++){
+
+                e(0,x)[y]=e_result(x);
+            }
             
         }
         s(0,j/PARAM_K)=s_j;

@@ -73,7 +73,7 @@ template<int Rows, int Cols>
 template<int OtherCols>
 PolynomialMatrix<Rows, OtherCols> PolynomialMatrix<Rows, Cols>::operator*(
     const PolynomialMatrix<Cols, OtherCols>& other) const {
-    cout<<"PERCHE!!!!"<<endl;
+    //cout<<"PERCHE!!!!"<<endl;
     PolynomialMatrix<Rows, Cols> first;
     PolynomialMatrix<Cols, OtherCols> second;
     for(int i=0;i<Rows;i++){

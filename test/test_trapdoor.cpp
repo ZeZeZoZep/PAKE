@@ -165,7 +165,7 @@ TEST(TrapdoorTest, Invert) {
         } 
         e(0,j)=poly;
     }
-    //cout << "Secret Key e (R_q^{1 × m}):\n" << e << std::endl;
+    cout << "Error e (R_q^{1 × m}):\n" << e << std::endl;
 
     // Calcola public key
     PolynomialMatrix<1, PARAM_M> b=s*A+e;
@@ -173,9 +173,14 @@ TEST(TrapdoorTest, Invert) {
     
     auto ret2 = TrapdoorHandler::Invert(b,R);
     PolynomialMatrix<1, PARAM_D> s2 = ret2.first;
-    PolynomialMatrix<1, PARAM_M> e2 = ret2.second;
+    PolynomialMatrix<1, PARAM_M> e2 = b-s2*A;
+    for(int j=0; j<PARAM_M; j++){
+        for(int y=0; y<PARAM_N; y++){
+            if(e2(0,j)[y]>PARAM_Q/2)e2(0,j)[y]=e2(0,j)[y]-PARAM_Q;
+        }
+    }
     //cout << "Secret Key s2 (R_q^{1 × d}):\n" << s2 << "\n\n";
-    //cout << "Secret Key e2 (R_q^{1 × m}):\n" << e2 << "\n\n";
+    cout << "Error e2 (R_q^{1 × m}):\n" << e2 << "\n\n";
 
     int error=0;
     for(int j=0; j<PARAM_D; j++){
@@ -186,6 +191,14 @@ TEST(TrapdoorTest, Invert) {
     }
     EXPECT_EQ(error,0)<< "on "<< PARAM_D*PARAM_N<< " retrieved integers";
     //EXPECT_EQ(1,0)<< "on "<< PARAM_D*PARAM_N<< " retrieved integers";
+    error=0;
+    for(int j=0; j<PARAM_M; j++){
+        for(int y=0; y<PARAM_N; y++){
+            if(e(0,j)[y]!=e2(0,j)[y])error++;
+            //EXPECT_EQ(s2(0,j)[y],s(0,j)[y]) << "A_hat ha zero righe!";
+        }
+    }
+    EXPECT_EQ(error,0)<< "on "<< PARAM_M*PARAM_N<< " retrieved integers";
 } 
 
 int main(int argc, char **argv) {

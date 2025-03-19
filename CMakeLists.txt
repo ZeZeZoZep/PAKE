@@ -24,6 +24,8 @@ set(CPP_FILES
     src/int.cpp
     src/random.cpp
     src/babai.cpp
+    src/trapdoor_handler.cpp
+    src/lpke.cpp
     main.cpp
 )
 add_library(random_mgs OBJECT ${C_FILE})
