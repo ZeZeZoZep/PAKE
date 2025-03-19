@@ -92,6 +92,24 @@ TEST(LPKETest, IsLossyRandom) {
     }
     EXPECT_TRUE(lpke.IsLossy(lpke.T, pk, v)) << "It should be lossy";
 }
+TEST(LPKETest, LEnc_and_LDec) {
+    LPKE lpke;
+    PolynomialMatrix<1, PARAM_M> v = TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_M>();;
+
+    auto ret = lpke.LKeyGen(v);
+    PolynomialMatrix<1, PARAM_M> pk=ret.first;
+    PolynomialMatrix<1, PARAM_D> sk=ret.second;
+    
+    vector<uint8_t> m(4);
+    for(int i=0; i<4; i++){
+        m[i]=i;
+    }
+    Cyphertext ct = lpke.LEnc(pk,m,v);
+
+    vector<uint8_t> m2 = lpke.LDec(sk,ct);
+
+    EXPECT_TRUE(m==m2) << "they should be equal";
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

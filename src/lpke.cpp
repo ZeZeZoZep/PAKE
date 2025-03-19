@@ -1,5 +1,6 @@
 #include "../include/lpke.h"    
 #include "../include/trapdoor_handler.h"
+#include "../include/r.h"
 // ✅ Costruttore: inizializza la matrice pubblica `A` e la trapdoor `T`
 LPKE::LPKE() {
     auto setup_result = LSetup();
@@ -36,42 +37,57 @@ pair<PolynomialMatrix<1, PARAM_M>, PolynomialMatrix<1, PARAM_D>> LPKE::LKeyGen(P
 // ✅ LEnc: Cifra un messaggio `m` con la chiave pubblica `pk`
 Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, PolynomialMatrix<1, PARAM_M>& v) const {
     Cyphertext ct;
+    PolynomialMatrix<1, PARAM_M> p = PolynomialMatrix<1, PARAM_M>::Zero();
+    p = pk + v;
+    vector<uint8_t> beta(m.size());
+    vector<PolynomialMatrix<PARAM_D, 1>> c(m.size()*m.size());
+    PolynomialMatrix<PARAM_M, 1> e_ij;
 
-/*     // Genera `s` casuale
-    PolynomialMatrix<1, PARAM_M> s;
-    for (int i = 0; i < PARAM_M; ++i) {
-        //s(0, i) = SampleNTT();
+    for(int i=0; i<m.size()*8; i++){
+        uint8_t beta_i=0;
+        uint8_t bit=0;
+        for(int j=0; j<m.size()*8; j++){
+            for(int k=0; k<PARAM_M; k++){
+
+                Polynomial poly(PARAM_N);
+                poly.setZero();
+
+                for(int k=0; k<PARAM_N; k++){
+                    poly[k]=P_random();
+                } 
+                e_ij(k,0)=poly;
+            }
+            PolynomialMatrix<PARAM_D, 1> c_ij=this->A*e_ij;
+
+            PolynomialMatrix<1, 1> temp=p*e_ij;
+            bit = R(static_cast<double>(temp[0].sum()), PARAM_N*this->q, pow(PARAM_N*this->q,2/3));
+
+            c.push_back(c_ij);
+            beta_i ^= bit < (j % m.size());
+        }
+        beta[i]=beta_i;
     }
-
-    // Cifra `c0 = s * A + v`
-    //ct.c.push_back(s * A + v);
-
-    // Cifra `c1 = s * pk + Encode(m)`
-    PolynomialMatrix<1, PARAM_M> encoded_m;
-    for (size_t i = 0; i < m.size(); ++i) {
-        encoded_m(0, i) = Polynomial(PARAM_N);
-        encoded_m(0, i)[0] = m[i]; // Codifica semplice (da migliorare)
-    }
-
-    ct.c.push_back(s * pk + encoded_m);
-    ct.beta = m; // Conserva il messaggio per riferimento */
+    ct.c=c;
+    ct.beta = beta; // Conserva il messaggio per riferimento 
 
     return ct;
 }
 
 // ✅ LDec: Decifra un `Cyphertext` con la chiave segreta `sk`
-Cyphertext LPKE::LDec(PolynomialMatrix<1, PARAM_D>& sk, Cyphertext& ct) const {
-    Cyphertext decrypted_ct;
-/* 
-    // Decifra `m' = c1 - sk * c0`
-    PolynomialMatrix<1, PARAM_M> decrypted_msg = ct.c[1] - (sk * ct.c[0]);
+vector<uint8_t> LPKE::LDec(PolynomialMatrix<1, PARAM_D>& sk, Cyphertext& ct) const {
+    vector<uint8_t> m(ct.beta.size());
 
-    // Estrai il messaggio (convertilo in uint8_t)
-    for (int i = 0; i < PARAM_M; ++i) {
-        decrypted_ct.beta.push_back(decrypted_msg(0, i)[0]);
+    for(int i=0; i<ct.beta.size()*8; i++){
+        uint8_t m_i=0;
+        uint8_t bit=0;
+        for(int j=0; j<ct.beta.size()*8; j++){
+            PolynomialMatrix<1, 1> temp=sk*ct.c[i*ct.c.size()+j];
+            bit = R(static_cast<double>(temp[0].sum()), PARAM_N*this->q, pow(PARAM_N*this->q,2/3));
+            m_i ^= bit < (j % m.size());
+        }
+        m[i]=m_i;
     }
- */
-    return decrypted_ct;
+    return m;
 }
 double LPKE::compute_norm(PolynomialMatrix<1, PARAM_M>& e){
     double norm=0;

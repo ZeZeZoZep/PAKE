@@ -22,7 +22,7 @@ add_executable(test_trapdoor test_trapdoor.cpp ../src/int.cpp ../src/ntt.cpp ../
 target_link_libraries(test_trapdoor random_mgs gtest gtest_main OpenSSL::SSL OpenSSL::Crypto)
 
 
-add_executable(test_lpke test_lpke.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/trapdoor_handler.cpp ../src/random.cpp ../src/babai.cpp ../src/lpke.cpp)
+add_executable(test_lpke test_lpke.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/trapdoor_handler.cpp ../src/random.cpp ../src/babai.cpp ../src/lpke.cpp ../src/r.cpp)
 target_link_libraries(test_lpke random_mgs gtest gtest_main OpenSSL::SSL OpenSSL::Crypto)
 
 # Registra i test con CTest
