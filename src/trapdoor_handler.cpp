@@ -61,24 +61,34 @@ pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1,PARAM_M>> TrapdoorHandler::
     for(int j=0; j<PARAM_K*PARAM_D; j+=PARAM_K){
         //cout <<"j "<< j <<endl;
         Polynomial s_j(PARAM_N);
+        PolynomialMatrix<1, PARAM_K> bj=b_hat.block(0,j,1,PARAM_K);
+        vector<VectorXi> lwes(PARAM_N);
         for(int y=0; y<PARAM_N; y++){
+            lwes[y]=VectorXi::Zero(PARAM_K);
+        }
             //cout <<"y "<< y <<endl;
-            PolynomialMatrix<1, PARAM_K> bj=b_hat.block(0,j,1,PARAM_K);
-            VectorXi bjx(PARAM_K);
-            for(int x=0; x<PARAM_K; x++){
-                bjx(x)=bj(0,x)[y];
+        for(int x=0; x<PARAM_K; x++){
+            //VectorXi bjx(PARAM_K);
+            for(int y=0; y<PARAM_N; y++){
+                lwes[y](x)=bj(0,x)[y];
             }
-            auto [z, e_result] = babai_nearest_plane(bjx);
+
+            
+        }
+        for(int y=0; y<PARAM_N; y++){
+            //cout <<"y "<< y <<endl; 
+            auto [z, e_result] = babai_nearest_plane(lwes[y]);
             //cout<<e_result<<endl;
-            s_j[y]=z;
+            // TODO: to fix, it doesn't function properly
+            /*             
             for(int x=0; x<PARAM_K; x++){
 
                 e(0,x)[y]=e_result(x);
-            }
-            
-        }
-        s(0,j/PARAM_K)=s_j;
-        
+            } 
+            */
+            s_j[y]=z;
+            s(0,j/PARAM_K)=s_j;
+        }    
     }
     return {s,e};
 } 

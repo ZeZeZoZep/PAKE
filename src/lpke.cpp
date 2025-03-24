@@ -39,53 +39,64 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
     Cyphertext ct;
     PolynomialMatrix<1, PARAM_M> p = PolynomialMatrix<1, PARAM_M>::Zero();
     p = pk + v;
-    vector<uint8_t> beta(m.size());
-    vector<PolynomialMatrix<PARAM_D, 1>> c(m.size()*m.size());
+    //vector<uint8_t> beta(m.size());
+    ct.beta = m;
+    vector<PolynomialMatrix<PARAM_D, 1>> c(m.size()*64);
     PolynomialMatrix<PARAM_M, 1> e_ij;
 
+
     for(int i=0; i<m.size()*8; i++){
-        uint8_t beta_i=0;
+        //uint8_t beta_i=0;
         uint8_t bit=0;
-        for(int j=0; j<m.size()*8; j++){
+        for(int j=0; j<8; j++){  
+            //cout<< "1"<<endl;
             for(int k=0; k<PARAM_M; k++){
 
                 Polynomial poly(PARAM_N);
                 poly.setZero();
 
                 for(int k=0; k<PARAM_N; k++){
-                    poly[k]=P_random();
+                    poly[k]=gaussian_random(0,pow(12,4)*pow(PARAM_N*this->q,2/3));
                 } 
                 e_ij(k,0)=poly;
             }
-            PolynomialMatrix<PARAM_D, 1> c_ij=this->A*e_ij;
-
+           // cout<< "2"<<endl;
             PolynomialMatrix<1, 1> temp=p*e_ij;
-            bit = R(static_cast<double>(temp[0].sum()), PARAM_N*this->q, pow(PARAM_N*this->q,2/3));
-
-            c.push_back(c_ij);
-            beta_i ^= bit < (j % m.size());
+            //cout<< "3"<<endl;
+            PolynomialMatrix<PARAM_D, 1> c_ij=this->A*e_ij;
+            //cout<< "4"<<endl;       
+            c[i*8+j]=c_ij;
+            //cout<< "5"<<endl; 
+            bit ^= R(static_cast<double>(temp[0].sum()-(PARAM_N*(this->q)/2)), PARAM_N*this->q,pow(PARAM_N*this->q,2/3));
+            //cout<< "6"<<endl; 
+/*             for(int k=0; k<PARAM_N; k++){
+                R( static_cast<double>(temp(0,0)[k]-PARAM_Q/2), this->q, pow(this->q,2/3));
+            } */
         }
-        beta[i]=beta_i;
+       //cout<< "sborra "<<(i-i%8)/8<<endl;
+        ct.beta[(i-i%8)/8] ^= bit < i%8;
     }
     ct.c=c;
-    ct.beta = beta; // Conserva il messaggio per riferimento 
+
+ // Conserva il messaggio per riferimento 
 
     return ct;
 }
 
 // ✅ LDec: Decifra un `Cyphertext` con la chiave segreta `sk`
 vector<uint8_t> LPKE::LDec(PolynomialMatrix<1, PARAM_D>& sk, Cyphertext& ct) const {
-    vector<uint8_t> m(ct.beta.size());
+    vector<uint8_t> m=ct.beta;
+
 
     for(int i=0; i<ct.beta.size()*8; i++){
-        uint8_t m_i=0;
         uint8_t bit=0;
-        for(int j=0; j<ct.beta.size()*8; j++){
-            PolynomialMatrix<1, 1> temp=sk*ct.c[i*ct.c.size()+j];
-            bit = R(static_cast<double>(temp[0].sum()), PARAM_N*this->q, pow(PARAM_N*this->q,2/3));
-            m_i ^= bit < (j % m.size());
+        for(int j=0; j<8; j++){
+            //cout <<"sborra\n" << ct.c[i*ct.beta.size()*8+j] << endl;
+ 
+            PolynomialMatrix<1, 1> temp=sk*ct.c[i*8+j];
+            bit ^=R(static_cast<double>(temp[0].sum()-(PARAM_N*(this->q)/2)), PARAM_N*this->q, pow(PARAM_N*this->q,2/3));
         }
-        m[i]=m_i;
+        m[(i-i%8)/8] ^= bit < i%8;
     }
     return m;
 }

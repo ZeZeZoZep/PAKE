@@ -20,7 +20,6 @@ double r_b(double x, double T) {
 // Funzione per calcolare la probabilità Pr[R(x) = 1]
 int R(double x, double q, double T) {
     double sum = 0.0;  // Somma per l'integrazione
-
     // Itera sull'intervallo [-q/2, q/2] con passo `step`
     for (double u = -q / 2; u < q / 2; u += 32) {
         double integrand = r_sharp(u, q) * r_b(x - u, T);

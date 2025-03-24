@@ -97,6 +97,8 @@ pair<int, VectorXi> babai_nearest_plane(const VectorXi& b) {
     if (z < 0) z += q; // Ensure non-negative
 
     VectorXi gz = g * z;
+    VectorXi e;
+  /*
     VectorXi e = (b - gz).array();
     for(int i=0; i<k; i++) e(i) = e(i) % q;
     // Wrap-around correction
@@ -104,7 +106,7 @@ pair<int, VectorXi> babai_nearest_plane(const VectorXi& b) {
         if (e(i) > q / 4) e(i) -= q;
         else if (e(i) < -q / 4) e(i) += q;
     }
-
+ */
     return {z, e};
 }
 
