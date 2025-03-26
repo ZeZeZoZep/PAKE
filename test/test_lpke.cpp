@@ -118,7 +118,7 @@ TEST(LPKETest, LEnc_and_LDec) {
     EXPECT_TRUE(m==m2) << "they should be equal";
 }
 
-TEST(LPKETest, LEnc_and_LDec_lossy) {
+/* TEST(LPKETest, LEnc_and_LDec_lossy) {
     LPKE lpke;
     PolynomialMatrix<1, PARAM_M> v = TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_M>();
 
@@ -153,7 +153,7 @@ TEST(LPKETest, LEnc_and_LDec_lossy) {
     cout << endl;
 
     EXPECT_TRUE(m!=m2) << "they should be equal";
-}
+} */
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

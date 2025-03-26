@@ -56,7 +56,7 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
                 poly.setZero();
 
                 for(int k=0; k<PARAM_N; k++){
-                    poly[k]=gaussian_random(0,pow(12,4)*pow(PARAM_N*this->q,2/3));
+                    poly[k]=gaussian_random(0,22);
                 } 
                 e_ij(k,0)=poly;
             }
@@ -67,11 +67,11 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
             //cout<< "4"<<endl;       
             c[i*8+j]=c_ij;
             //cout<< "5"<<endl; 
-            bit ^= R(static_cast<double>(temp[0].sum()-(PARAM_N*(this->q)/2)), PARAM_N*this->q,pow(PARAM_N*this->q,2/3));
+             //R(static_cast<double>(temp[0].sum()-(PARAM_N*(this->q)/2)), PARAM_N*this->q,8990);
             //cout<< "6"<<endl; 
-/*             for(int k=0; k<PARAM_N; k++){
-                R( static_cast<double>(temp(0,0)[k]-PARAM_Q/2), this->q, pow(this->q,2/3));
-            } */
+            for(int k=0; k<PARAM_N; k++){
+                bit ^= R( static_cast<double>(temp(0,0)[k]-PARAM_Q/2), this->q, 226);
+            } 
         }
        //cout<< "sborra "<<(i-i%8)/8<<endl;
         ct.beta[(i-i%8)/8] ^= bit < i%8;
@@ -94,7 +94,10 @@ vector<uint8_t> LPKE::LDec(PolynomialMatrix<1, PARAM_D>& sk, Cyphertext& ct) con
             //cout <<"sborra\n" << ct.c[i*ct.beta.size()*8+j] << endl;
  
             PolynomialMatrix<1, 1> temp=sk*ct.c[i*8+j];
-            bit ^=R(static_cast<double>(temp[0].sum()-(PARAM_N*(this->q)/2)), PARAM_N*this->q, pow(PARAM_N*this->q,2/3));
+            //bit ^=R(static_cast<double>(temp[0].sum()-(PARAM_N*(this->q)/2)), PARAM_N*this->q, 8990);
+            for(int k=0; k<PARAM_N; k++){
+                bit ^= R( static_cast<double>(temp(0,0)[k]-PARAM_Q/2), this->q, 226);
+            } 
         }
         m[(i-i%8)/8] ^= bit < i%8;
     }
