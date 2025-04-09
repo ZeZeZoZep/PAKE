@@ -26,6 +26,7 @@ set(CPP_FILES
     src/babai.cpp
     src/trapdoor_handler.cpp
     src/lpke.cpp
+    src/pke.cpp
     src/r.cpp
     main.cpp
 )

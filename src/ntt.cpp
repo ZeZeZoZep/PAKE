@@ -104,6 +104,38 @@ void shake256(const vector<uint8_t>& input, vector<uint8_t>& output) {
     EVP_DigestFinalXOF(ctx, output.data(), output.size());
     EVP_MD_CTX_free(ctx);
 }
+/**
+ * PRFη(s, b) = SHAKE256(s || b, 64 * η)
+ *
+ * @param eta deve essere 2 o 3
+ * @param s array di 32 byte
+ * @param b singolo byte
+ * @return output di 64 * eta byte
+ */
+std::vector<uint8_t> PRF(uint8_t eta, const std::vector<uint8_t>& s, uint8_t b) {
+    if (eta != 2 && eta != 3)
+        throw std::invalid_argument("eta deve essere 2 o 3");
+    if (s.size() != 32)
+        throw std::invalid_argument("s deve essere lungo 32 byte");
+
+    std::vector<uint8_t> input = s;
+    input.push_back(b);  // s || b
+
+    std::vector<uint8_t> output(64 * eta);
+    shake256(input, output);
+    return output;
+}
+std::vector<uint8_t> sha3_512(const std::vector<uint8_t>& input) {
+    std::vector<uint8_t> output(64);  // SHA3-512 produce 64 byte = 512 bit
+
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(ctx, EVP_sha3_512(), NULL);
+    EVP_DigestUpdate(ctx, input.data(), input.size());
+    EVP_DigestFinal_ex(ctx, output.data(), nullptr);
+    EVP_MD_CTX_free(ctx);
+
+    return output;
+}
 
 // Campionamento SampleNTT con Eigen
 Polynomial SampleNTT(const vector<uint8_t>& seed, uint8_t idx1, uint8_t idx2) {
@@ -135,14 +167,14 @@ Polynomial SampleNTT(const vector<uint8_t>& seed, uint8_t idx1, uint8_t idx2) {
 // Campionamento SamplePolyCBD con Eigen
 Polynomial SamplePolyCBD(const vector<uint8_t>& B, int eta) {
     if (B.size() != 64u * eta) throw runtime_error("L'array B deve avere lunghezza 64*eta byte.");
-
+    vector<int> b = BytesToBits(B);
     Polynomial f(N);
     for (int i = 0; i < N; i++) {
         int x = 0, y = 0;
         int start = 2 * eta * i;
 
-        for (int j = 0; j < eta; j++) x += (B[start + j] & 1);
-        for (int j = 0; j < eta; j++) y += (B[start + eta + j] & 1);
+        for (int j = 0; j < eta; j++) x += (b[start + j] & 1);
+        for (int j = 0; j < eta; j++) y += (b[start + eta + j] & 1);
 
         int diff = x - y;
         if (diff < 0) diff += q;
