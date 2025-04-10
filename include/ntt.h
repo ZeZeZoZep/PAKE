@@ -34,6 +34,8 @@ const uint16_t zetas[128] = {
 };
 using namespace std;
 using namespace Eigen;
+std::vector<uint16_t> Decompress(const std::vector<uint16_t>& y, int d, uint16_t q);
+std::vector<uint16_t> Compress(const std::vector<uint16_t>& x, int d, uint16_t q);
 uint16_t bitrev7(uint16_t x);
 uint16_t getZeta2(uint16_t i);
 std::pair<uint16_t, uint16_t> baseCaseMultiply(uint16_t f0, uint16_t f1,

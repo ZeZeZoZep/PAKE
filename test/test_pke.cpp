@@ -2,6 +2,8 @@
 #include "../include/pke.h"
 #include "../include/random.h"
 #include <openssl/rand.h>
+PolynomialMatrix<1, PARAM_D> pk;
+PolynomialMatrix<1, PARAM_D> sk;
 TEST(PKETest, Keygen) {
     PKE pke;
 
@@ -9,8 +11,9 @@ TEST(PKETest, Keygen) {
     if (RAND_bytes(seed.data(), seed.size()) != 1) throw std::runtime_error("RAND_bytes failed");
 
     tuple<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, PARAM_D>,vector<uint8_t>> ret = pke.KeyGen(seed);
-    PolynomialMatrix<1, PARAM_D> pk=get<0>(ret);
-    PolynomialMatrix<1, PARAM_D> sk=get<1>(ret);
+
+    pk=get<0>(ret);
+    sk=get<1>(ret);
 
     int error=0;
     for(int j=0; j<PARAM_D; j++){

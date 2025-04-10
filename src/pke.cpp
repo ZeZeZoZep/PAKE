@@ -28,13 +28,13 @@ tuple<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, PARAM_D>,vector<uint8_t>>
         N++;
     }
     s.toNTT();
-    e.toNTT();
+    //e.toNTT();
 
     PolynomialMatrix<1, PARAM_D> t = s*A + e; // t = A·s + e ∈ R_q^k
     // TODO: add encoding of public and secret key
     return {t,s,rho};
 }
-tuple<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, PARAM_D>,vector<uint8_t>> PKE::Encrypt(PolynomialMatrix<1, PARAM_D>t,const vector<uint8_t>& rho,const vector<uint8_t>& m, const vector<uint8_t>& r) {
+pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, PARAM_D>> PKE::Encrypt(PolynomialMatrix<1, PARAM_D>t,const vector<uint8_t>& rho,const vector<uint8_t>& m, const vector<uint8_t>& r) {
     // TODO: add decoding of public and secret key
     uint8_t N = 0;
 
@@ -57,8 +57,49 @@ tuple<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, PARAM_D>,vector<uint8_t>>
     PolynomialMatrix<1, 1> e2;
     e2(0,0) = SamplePolyCBD(PRF(PARAM_ETA2, rho, N), PARAM_ETA2);
     y.toNTT();
-    PolynomialMatrix<1, PARAM_D> u=y*A  + e1;
+    PolynomialMatrix<1, PARAM_D> u = y*A  + e1;
 
+    vector<uint16_t> temp = Decompress(ByteDecode(m,PARAM_D,PARAM_Q),PARAM_D,PARAM_Q);
 
-    return {t,y,rho};
+    PolynomialMatrix<1,1> mu;
+    Polynomial poly;
+    
+    for(int i=0; i<PARAM_N; i++)poly[i]=temp[i];
+    mu(0,0)=poly;
+    PolynomialMatrix<1, PARAM_D> v = t*y + e2 + mu;
+
+/* 
+    vector<uint16_t> u_encoded;   
+    vector<uint16_t> v_encoded;
+    for(int i=0; i<PARAM_N; i++){
+        u_encoded[i]=v
+        v_encoded[i]=
+    }
+ */
+    
+    return {u,v};
+}
+pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, PARAM_D>> PKE::Decrypt(PolynomialMatrix<1, PARAM_D> u, PolynomialMatrix<1, PARAM_D> v,PolynomialMatrix<1, PARAM_D> s) {
+    // TODO: add decoding of public and secret key
+ 
+    vector<uint16_t> temp = Decompress(ByteDecode(m,PARAM_D,PARAM_Q),PARAM_D,PARAM_Q);
+
+    PolynomialMatrix<1,1> mu;
+    Polynomial poly;
+    
+   /*  for(int i=0; i<PARAM_N; i++)poly[i]=temp[i];
+    mu(0,0)=poly;
+    PolynomialMatrix<PARAM_D,1> v_trasn
+    PolynomialMatrix<1, PARAM_D> v = u*y + e2 + mu; */
+
+/* 
+    vector<uint16_t> u_encoded;   
+    vector<uint16_t> v_encoded;
+    for(int i=0; i<PARAM_N; i++){
+        u_encoded[i]=v
+        v_encoded[i]=
+    }
+ */
+    
+    return {u,v};
 }

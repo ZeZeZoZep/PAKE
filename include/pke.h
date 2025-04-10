@@ -16,7 +16,7 @@ class PKE{
         PKE();
         ~PKE();
         tuple<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, PARAM_D>,vector<uint8_t>> KeyGen(const vector<uint8_t>& seed);
-        tuple<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, PARAM_D>,vector<uint8_t>> Encrypt(PolynomialMatrix<1, PARAM_D>t,const vector<uint8_t>& rho,const vector<uint8_t>& m, const vector<uint8_t>& r) ;
+        pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, PARAM_D>> Encrypt(PolynomialMatrix<1, PARAM_D>t,const vector<uint8_t>& rho,const vector<uint8_t>& m, const vector<uint8_t>& r) ;
 };
 
 

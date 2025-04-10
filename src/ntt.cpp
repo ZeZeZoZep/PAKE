@@ -1,5 +1,8 @@
 #include "../include/ntt.h"
 #include <vector>
+#include <cstdint>
+#include <cmath>
+
 using namespace std;
 using namespace Eigen;
 
@@ -137,6 +140,29 @@ std::vector<uint8_t> sha3_512(const std::vector<uint8_t>& input) {
     return output;
 }
 
+// Decompress_d: Z_{2^d} → Z_q
+std::vector<uint16_t> Decompress(const std::vector<uint16_t>& y, int d, uint16_t q) {
+    std::vector<uint16_t> result(y.size());
+    const double factor = static_cast<double>(q) / static_cast<double>(1 << d);
+
+    for (size_t i = 0; i < y.size(); ++i) {
+        result[i] = static_cast<uint16_t>(std::round(y[i] * factor));
+    }
+
+    return result;
+}
+// Compress_d: Z_q → Z_{2^d}
+std::vector<uint16_t> Compress(const std::vector<uint16_t>& x, int d, uint16_t q) {
+    std::vector<uint16_t> result(x.size());
+    const double factor = static_cast<double>(1 << d) / static_cast<double>(q);
+
+    for (size_t i = 0; i < x.size(); ++i) {
+        uint16_t compressed = static_cast<uint16_t>(std::round(x[i] * factor)) & ((1 << d) - 1);
+        result[i] = compressed;
+    }
+
+    return result;
+}
 // Campionamento SampleNTT con Eigen
 Polynomial SampleNTT(const vector<uint8_t>& seed, uint8_t idx1, uint8_t idx2) {
     vector<uint8_t> B(34);
