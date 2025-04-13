@@ -28,7 +28,7 @@ set(CPP_FILES
     src/lpke.cpp
     src/pke.cpp
     src/hash.cpp
-#    src/kem.cpp
+    src/kem.cpp
     src/r.cpp
     main.cpp
 )

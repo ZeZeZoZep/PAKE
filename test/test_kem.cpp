@@ -7,13 +7,16 @@ PolynomialMatrix<1, PARAM_D> sk;
 KEM kem;
 
 
+vector<uint8_t> z;
 vector<uint8_t> rho;
 std::vector<uint8_t> seed(32);
 
 
 TEST(KEMTest, Keygen) {
-    auto ret = kem.KeyGen();
-
+    auto ret_keygen = kem.KeyGen();
+    auto ret = ret_keygen.first;
+    z = ret_keygen.second;
+    
     pk=get<0>(ret);
     sk=get<1>(ret);
     rho=get<2>(ret);
@@ -45,13 +48,13 @@ TEST(KEMTest, Keygen) {
 
 TEST(KEMTest, EncDec) {
 
-    auto ret = kem.Encaps(pk,rho);
+    auto retE = kem.Encaps(pk,rho);
 
-    auto ret = kem.Decaps(sk,pk,rho,ret.first.first,ret.first.second,ret.second,sk);
+    auto retD = kem.Decaps(sk,pk,rho,z,retE.second.first,retE.second.second);
 
     int error=0;
     for(int i=0; i<32; i++){
-        if(message[i]!=m2[i])error++;
+        if(retE.first[i]!=retD[i])error++;
     }
     EXPECT_EQ(error,0)<< "they should be equal";
 

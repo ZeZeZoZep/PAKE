@@ -48,7 +48,7 @@ class KEM{
         KEM();
         ~KEM();
 
-        tuple<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, PARAM_D>,vector<uint8_t>> 
+        pair<tuple<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, PARAM_D>,vector<uint8_t>>,vector<uint8_t>> 
         KeyGen();
 
         pair<vector<uint8_t>,pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, 1>>> 
