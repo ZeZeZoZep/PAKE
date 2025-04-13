@@ -46,7 +46,7 @@ Polynomial addNTTs(const Polynomial& f, const Polynomial& g) ;
 Polynomial multiplyNTTs(const Polynomial& f, const Polynomial& g) ;
 Polynomial ntt(Polynomial f);
 Polynomial inv_ntt(Polynomial f_hat);
-void shake256(const vector<uint8_t>& input, vector<uint8_t>& output);
+
 std::vector<uint8_t> sha3_512(const std::vector<uint8_t>& input);
 std::vector<uint8_t> PRF(uint8_t eta, const std::vector<uint8_t>& s, uint8_t b);
 

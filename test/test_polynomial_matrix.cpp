@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "polynomial_matrix.h"
+#include "polynomial_matrix_utils.h"
 #include <stdio.h>
 
 
@@ -181,6 +182,25 @@ TEST(PolynomialMatrixTest, Multiplication_constant2) {
     EXPECT_EQ(C(0, 1)[1], 3325);
     EXPECT_EQ(C(1, 0)[2], 3325);
     EXPECT_EQ(C(1, 1)[3], 3325);
+}
+
+TEST(PolynomialMatrixTest, EncodeDecode) {
+    PolynomialMatrix<4, 4> A;
+
+    for(int i=0; i<4; i++)
+        for(int j=0; j<4; j++){
+            Polynomial p1(256);
+            for(int i=0; i<256; i++)
+                p1[i] = 1;
+            A(i, j)=p1;
+        }
+    
+    std::vector<uint16_t> flat = PolynomialMatrixUtils::Encode(A);
+    cout<<flat.size()<<endl;
+    PolynomialMatrix<4, 4> A2 = PolynomialMatrixUtils::Decode<4, 4>(flat);
+
+
+    EXPECT_EQ(A, A2);
 }
 // Esegue tutti i test
 int main(int argc, char **argv) {

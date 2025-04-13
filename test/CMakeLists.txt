@@ -28,7 +28,7 @@ target_link_libraries(test_lpke random_mgs gtest gtest_main OpenSSL::SSL OpenSSL
 add_executable(test_rounding test_rounding.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/trapdoor_handler.cpp ../src/random.cpp ../src/babai.cpp  ../src/r.cpp)
 target_link_libraries(test_rounding random_mgs gtest gtest_main OpenSSL::SSL OpenSSL::Crypto)
 
-add_executable(test_pke test_pke.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/random.cpp ../src/pke.cpp)
+add_executable(test_pke test_pke.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/random.cpp ../src/hash.cpp ../src/pke.cpp)
 target_link_libraries(test_pke random_mgs gtest gtest_main OpenSSL::SSL OpenSSL::Crypto)
 
 

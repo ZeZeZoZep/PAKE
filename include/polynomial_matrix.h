@@ -22,6 +22,8 @@ public:
     PolynomialMatrix fromNTT() const;
 };
 
+
+
 // Metodo aggiuntivo: applica il modulo p a ogni elemento della matrice
 template<int Rows, int Cols>
 PolynomialMatrix<Rows, Cols>  PolynomialMatrix<Rows, Cols>::toNTT() const {
