@@ -29,6 +29,7 @@ set(CPP_FILES
     src/pke.cpp
     src/hash.cpp
     src/kem.cpp
+    src/ideal_cipher.cpp
     src/r.cpp
     main.cpp
 )

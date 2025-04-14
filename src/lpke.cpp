@@ -129,7 +129,7 @@ bool LPKE::IsLossy(PolynomialMatrix<2 * PARAM_D, PARAM_D * PARAM_K>& T, Polynomi
     } 
     //cout<< e <<std::endl;
     for(int j=0; j<PARAM_M; j++){
-        if(e(j).norm()>this->q/(8*sqrt(PARAM_N))){
+        if(e(j).norm()>this->q/(8*std::sqrt(PARAM_N))){
             return true;
         }
     }

@@ -96,3 +96,26 @@ vector<uint16_t> ByteDecode(const vector<uint8_t>& B, int d, uint16_t q = 3329) 
     return F;
 }
 
+cpp_int vector_to_bigint_baseq(const vector<uint16_t>& vec, uint16_t q) {
+    cpp_int result = 0;
+    cpp_int base = 1;
+
+    for (size_t i = 0; i < vec.size(); ++i) {
+        result += cpp_int(vec[i]) * base;
+        base *= q;
+    }
+
+    return result;
+}
+vector<uint16_t> bigint_to_vector_baseq(const cpp_int& value, uint16_t q, size_t expected_length) {
+    cpp_int val = value;
+    vector<uint16_t> vec;
+
+    for (size_t i = 0; i < expected_length; ++i) {
+        vec.push_back(static_cast<uint16_t>(val % q));
+        val /= q;
+    }
+
+    return vec;
+}
+

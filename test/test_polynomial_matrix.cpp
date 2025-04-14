@@ -2,7 +2,9 @@
 #include "polynomial_matrix.h"
 #include "polynomial_matrix_utils.h"
 #include <stdio.h>
-
+#include <openssl/rand.h>
+#include "int.h"
+#include "ideal_cipher.h"
 
 
 TEST(PolynomialMatrixTest, NTT1) {
@@ -184,7 +186,7 @@ TEST(PolynomialMatrixTest, Multiplication_constant2) {
     EXPECT_EQ(C(1, 1)[3], 3325);
 }
 
-TEST(PolynomialMatrixTest, EncodeDecode) {
+TEST(PolynomialMatrixTest, EncodeDecode1) {
     PolynomialMatrix<4, 4> A;
 
     for(int i=0; i<4; i++)
@@ -196,12 +198,49 @@ TEST(PolynomialMatrixTest, EncodeDecode) {
         }
     
     std::vector<uint16_t> flat = PolynomialMatrixUtils::Encode(A);
-    cout<<flat.size()<<endl;
-    PolynomialMatrix<4, 4> A2 = PolynomialMatrixUtils::Decode<4, 4>(flat);
+    cpp_int val = vector_to_bigint_baseq(flat, PARAM_Q);
+
+    std::vector<uint16_t> flat2 = bigint_to_vector_baseq(val, PARAM_Q, flat.size());
+    PolynomialMatrix<4, 4> A2 = PolynomialMatrixUtils::Decode<4, 4>(flat2);
 
 
     EXPECT_EQ(A, A2);
 }
+/* TEST(PolynomialMatrixTest, EncodeDecode2) {
+    PolynomialMatrix<1, 4> A;
+
+    for(int i=0; i<1; i++)
+        for(int j=0; j<4; j++){
+            Polynomial p1(256);
+            for(int i=0; i<256; i++)
+                p1[i] = 1;
+            A(i, j)=p1;
+        }
+    
+    std::vector<uint16_t> flat = PolynomialMatrixUtils::Encode(A);
+
+
+    // 2. Codifica
+    cpp_int pk_int = vector_to_bigint_baseq(flat, PARAM_Q);
+    cpp_int domain_size = boost::multiprecision::pow(cpp_int(PARAM_Q), flat.size());
+
+    // 3. Chiave AES
+    vector<uint8_t> aes_key(16);
+    RAND_bytes(aes_key.data(), aes_key.size());
+    size_t encoded_len_in_bytes = boost::multiprecision::msb(pk_int) / 8 + 1;
+    // 4. Cifra e decifra
+    auto shuffled = IdealCipher::shake_permute(pk_int, aes_key, encoded_len_in_bytes);
+    auto reshuffled = IdealCipher::shake_permute(shuffled, aes_key, encoded_len_in_bytes);
+
+
+    // 5. Riconversione
+    vector<uint16_t> pk2 = bigint_to_vector_baseq(reshuffled, PARAM_Q, flat.size());
+
+    PolynomialMatrix<1, 4> A2 = PolynomialMatrixUtils::Decode<1, 4>(pk2);
+
+
+    EXPECT_EQ(A, A2);
+} */
 // Esegue tutti i test
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
