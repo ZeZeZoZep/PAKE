@@ -14,14 +14,12 @@ using boost::multiprecision::cpp_int;
 class IdealCipher {
 private:
     std::vector<uint8_t> key;       // 128-bit AES key        
-    EVP_CIPHER_CTX* ctx;
+
     std::vector<uint8_t> generateRandomKey() {
         std::vector<uint8_t> k(16);
         RAND_bytes(k.data(), k.size());
         return k;
     }
-    static cpp_int bytes_to_cpp_int(const std::vector<uint8_t>& bytes);
-    static std::vector<uint8_t> cpp_int_to_padded_bytes(const cpp_int& val, size_t min_len);
     static std::vector<uint8_t> aes_ecb_encrypt(const std::vector<uint8_t>& plaintext, const std::vector<uint8_t>& key);
     static std::vector<uint8_t> aes_ecb_decrypt(const std::vector<uint8_t>& ciphertext, const std::vector<uint8_t>& key);
 
@@ -34,8 +32,10 @@ public:
 
     ~IdealCipher() {
     }
-
-
+    static cpp_int bytes_to_cpp_int(const std::vector<uint8_t>& bytes);
+    static std::vector<uint8_t> cpp_int_to_padded_bytes(const cpp_int& val, size_t min_len);
+    vector<uint8_t> encrypt_bytes(const vector<uint8_t>& in_bytes);
+    vector<uint8_t> decrypt_bytes(const vector<uint8_t>& in_bytes);
     cpp_int encrypt_cpp_int(const cpp_int& input);
     cpp_int decrypt_cpp_int(const cpp_int& cipher_int);
 };

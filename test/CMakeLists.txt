@@ -35,6 +35,9 @@ target_link_libraries(test_kem random_mgs gtest gtest_main OpenSSL::SSL OpenSSL:
 add_executable(test_ideal_cipher test_ideal_cipher.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/ideal_cipher.cpp)
 target_link_libraries(test_ideal_cipher gtest gtest_main OpenSSL::SSL OpenSSL::Crypto)
 
+add_executable(test_pake test_pake.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/ideal_cipher.cpp ../src/random.cpp ../src/hash.cpp ../src/pke.cpp ../src/kem.cpp)
+target_link_libraries(test_pake random_mgs gtest gtest_main OpenSSL::SSL OpenSSL::Crypto)
+
 # Registra i test con CTest
 add_test(NAME Polynomial COMMAND test_polynomial)
 add_test(NAME PolynomialMatrix COMMAND test_polynomial_matrix)
@@ -44,3 +47,4 @@ add_test(NAME PolynomialMatrix COMMAND test_polynomial_matrix)
 add_test(NAME PKE COMMAND test_pke)
 add_test(NAME KEM COMMAND test_kem)
 add_test(NAME IdealCipher COMMAND test_ideal_cipher)
+add_test(NAME PAKE COMMAND test_pake)

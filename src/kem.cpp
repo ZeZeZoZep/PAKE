@@ -1,6 +1,5 @@
 #include "kem.h"
-KEM::KEM() {
-}
+KEM::KEM() {}
 
 KEM::~KEM() {}
 

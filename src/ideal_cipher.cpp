@@ -51,7 +51,13 @@ std::vector<uint8_t> IdealCipher::aes_ecb_decrypt(const std::vector<uint8_t>& ci
     return plaintext;
 }
 
-
+vector<uint8_t> IdealCipher::encrypt_bytes(const vector<uint8_t>& in_bytes) {
+    return aes_ecb_encrypt(in_bytes, this->key);
+}
+vector<uint8_t> IdealCipher::decrypt_bytes(const vector<uint8_t>& in_bytes) {
+    return aes_ecb_decrypt(in_bytes, this->key);
+    
+}
 
 cpp_int IdealCipher::encrypt_cpp_int(const cpp_int& input) {
     auto in_bytes = cpp_int_to_padded_bytes(input, 16); // padding a multipli di 16
