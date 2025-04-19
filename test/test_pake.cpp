@@ -80,7 +80,7 @@ TEST(PakeTest, STEP0) {
     cpp_int m2=IdealCipher::bytes_to_cpp_int(pk_bytes2);
     
     std::vector<uint16_t> flat2 = bigint_to_vector_baseq(m2, PARAM_Q, flat.size());
-    PolynomialMatrix<1, 4> A2 = PolynomialMatrixUtils::Decode<1, 4>(flat2);
+    PolynomialMatrix<1, PARAM_D> A2 = PolynomialMatrixUtils::Decode<1, PARAM_D>(flat2);
 
     EXPECT_EQ(pk_int , m2);
     EXPECT_EQ(rho , rho2);
@@ -128,10 +128,10 @@ TEST(PakeTest, STEP1) {
     c1_int=IdealCipher::bytes_to_cpp_int(c1_server);
     c2_int=IdealCipher::bytes_to_cpp_int(c2_server);
 
-    vector<uint16_t> flat1_server = bigint_to_vector_baseq(c1_int, PARAM_Q, 4*PARAM_N);
+    vector<uint16_t> flat1_server = bigint_to_vector_baseq(c1_int, PARAM_Q, PARAM_D*PARAM_N);
     vector<uint16_t> flat2_server = bigint_to_vector_baseq(c2_int, PARAM_Q, PARAM_N);
 
-    PolynomialMatrix<1, 4> A2 = PolynomialMatrixUtils::Decode<1, 4>(flat1_server);
+    PolynomialMatrix<1, PARAM_D> A2 = PolynomialMatrixUtils::Decode<1, PARAM_D>(flat1_server);
     PolynomialMatrix<1, 1> A3 = PolynomialMatrixUtils::Decode<1, 1>(flat2_server);
 
     

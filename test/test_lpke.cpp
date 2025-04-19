@@ -1,9 +1,15 @@
 #include <gtest/gtest.h>
 #include "../include/lpke.h"
 #include "../include/random.h"
+#include "../include/hash.h"
+
+LPKE lpke;
+PolynomialMatrix<1, PARAM_M> v;
+PolynomialMatrix<1, PARAM_M> pk;
+PolynomialMatrix<1, PARAM_D> sk;
 TEST(LPKETest, Keygen) {
-    LPKE lpke;
-    PolynomialMatrix<1, PARAM_M> v;
+
+
     for(int j=0; j<PARAM_M; j++){
         Polynomial poly(PARAM_N);
         poly.setZero();
@@ -15,8 +21,8 @@ TEST(LPKETest, Keygen) {
         v(0,j)=poly;
     }
     auto ret = lpke.LKeyGen(v);
-    PolynomialMatrix<1, PARAM_M> pk=ret.first;
-    PolynomialMatrix<1, PARAM_D> sk=ret.second;
+    pk=ret.first;
+    sk=ret.second;
     int error=0;
     for(int j=0; j<PARAM_M; j++){
         for(int y=0; y<PARAM_N; y++){
@@ -40,22 +46,6 @@ TEST(LPKETest, Keygen) {
 
 }
 TEST(LPKETest, IsLossy) {
-    LPKE lpke;
-    PolynomialMatrix<1, PARAM_M> v;
-    for(int j=0; j<PARAM_M; j++){
-        Polynomial poly(PARAM_N);
-        poly.setZero();
-        //poly[0]=P_random();
-        for(int y=0; y<PARAM_N; y++){
-            poly[y]=1;
-            //if(poly[y]<0)poly[y]=poly[y]*(-1);
-        } 
-        v(0,j)=poly;
-    }
-    auto ret = lpke.LKeyGen(v);
-    PolynomialMatrix<1, PARAM_M> pk=ret.first;
-    PolynomialMatrix<1, PARAM_D> sk=ret.second;
-
 
     EXPECT_FALSE(lpke.IsLossy(lpke.T, pk, v)) << "It should NOT be lossy";
     for(int j=0; j<PARAM_M; j++){
@@ -71,12 +61,12 @@ TEST(LPKETest, IsLossy) {
     EXPECT_TRUE(lpke.IsLossy(lpke.T, pk, v)) << "It should be lossy";
 }
 TEST(LPKETest, IsLossyRandom) {
-    LPKE lpke;
-    PolynomialMatrix<1, PARAM_M> v = TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_M>();;
+
+    v = TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_M>();;
 
     auto ret = lpke.LKeyGen(v);
-    PolynomialMatrix<1, PARAM_M> pk=ret.first;
-    PolynomialMatrix<1, PARAM_D> sk=ret.second;
+    pk=ret.first;
+    sk=ret.second;
     
 
     EXPECT_FALSE(lpke.IsLossy(lpke.T, pk, v)) << "It should NOT be lossy";
@@ -93,67 +83,56 @@ TEST(LPKETest, IsLossyRandom) {
     EXPECT_TRUE(lpke.IsLossy(lpke.T, pk, v)) << "It should be lossy";
 }
 TEST(LPKETest, LEnc_and_LDec) {
-    LPKE lpke;
-    PolynomialMatrix<1, PARAM_M> v = TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_M>();
+    v = TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_M>();;
 
     auto ret = lpke.LKeyGen(v);
-    PolynomialMatrix<1, PARAM_M> pk=ret.first;
-    PolynomialMatrix<1, PARAM_D> sk=ret.second;
+    pk=ret.first;
+    sk=ret.second;
     cout << PARAM_M << " " << endl;
+    EXPECT_FALSE(lpke.IsLossy(lpke.T, pk, v)) << "It should NOT be lossy";
     vector<uint8_t> m={1,2,3,4};
-    cout << "[DEBUG] Original m: ";
-    for (auto b : m) cout << (int)b << " ";
-    cout << endl;
+    m=H(m);
+    
     
     Cyphertext ct = lpke.LEnc(pk,m,v);
-    cout << "[DEBUG] ct.beta: ";
-    for (auto b : ct.beta) cout << (int)b << " ";
-    cout << endl;
-
+    cout << PARAM_M << " prcodoooo" << endl;
     vector<uint8_t> m2 = lpke.LDec(sk,ct);
-    cout << "[DEBUG] Decrypted m2: ";
-    for (auto b : m2) cout << (int)b << " ";
-    cout << endl;
 
-    EXPECT_TRUE(m==m2) << "they should be equal";
-}
-
-/* TEST(LPKETest, LEnc_and_LDec_lossy) {
-    LPKE lpke;
-    PolynomialMatrix<1, PARAM_M> v = TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_M>();
-
-    auto ret = lpke.LKeyGen(v);
-    PolynomialMatrix<1, PARAM_M> pk=ret.first;
-    PolynomialMatrix<1, PARAM_D> sk=ret.second;
-    cout << PARAM_M << " " << endl;
-    vector<uint8_t> m={1,2,3,4};
-    cout << "[DEBUG] Original m: ";
-    for (auto b : m) cout << (int)b << " ";
-    cout << endl;
+ 
+    int error=0;
+    for(int y=0; y<32; y++){
+        if(m[y]!=m2[y]){
+            //cout<<b_hat(0,j)[y]<<" "<<b_hat2(0,j)[y]<<endl;
+            error++;
+        }
+    }
+    EXPECT_EQ(error,0)<< "on "<< 32<< " retrieved integers";
+    EXPECT_EQ(m,m2) << "they should be equal";
     
-    Cyphertext ct = lpke.LEnc(pk,m,v);
-    cout << "[DEBUG] ct.beta: ";
-    for (auto b : ct.beta) cout << (int)b << " ";
-    cout << endl;
+} 
 
+TEST(LPKETest, LEnc_and_LDec_lossy) {
     for(int j=0; j<PARAM_M; j++){
         Polynomial poly(PARAM_N);
         poly.setZero();
         //poly[0]=P_random();
         for(int y=0; y<PARAM_N; y++){
-            poly[y]=1;
+            poly[y]=uniform_q_random(PARAM_Q);
             //if(poly[y]<0)poly[y]=poly[y]*(-1);
         } 
         v(0,j)=poly;
     }
+    EXPECT_TRUE(lpke.IsLossy(lpke.T, pk, v)) << "It should NOT be lossy";
+    vector<uint8_t> m={1,2,3,4};
+    m=H(m);
+    
+    
+    Cyphertext ct = lpke.LEnc(pk,m,v);
 
     vector<uint8_t> m2 = lpke.LDec(sk,ct);
-    cout << "[DEBUG] Decrypted m2: ";
-    for (auto b : m2) cout << (int)b << " ";
-    cout << endl;
 
-    EXPECT_TRUE(m!=m2) << "they should be equal";
-} */
+    EXPECT_NE(m,m2) << "they should not be equal";
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

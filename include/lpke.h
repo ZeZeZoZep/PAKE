@@ -8,8 +8,8 @@
 using namespace std;
 using namespace Eigen;
 struct Cyphertext {
-    vector<PolynomialMatrix<PARAM_D,1>> c;
-    vector<uint8_t> beta;
+    PolynomialMatrix<PARAM_D,1> u;
+    PolynomialMatrix<1,1> c;
 };
 class LPKE {  
     private:

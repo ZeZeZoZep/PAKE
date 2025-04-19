@@ -19,7 +19,7 @@ uint16_t bitrev7(uint16_t x) {
 // Recupera il valore ζ₂BitRev7(i)+1 modulo q
 uint16_t getZeta2(uint16_t i) {
     uint16_t rev = bitrev7(i);
-    return (zetas[rev] + 1) % q;
+    return (arr[rev] + 1) % q;
 }
 
 // Base-case multiplication con Eigen
