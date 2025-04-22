@@ -8,7 +8,7 @@
 #define PARAM_Q 3329
 #define PARAM_K 12
 #define PARAM_N 256
-#define PARAM_D 1
+#define PARAM_D 2
 #define PARAM_M PARAM_D*(PARAM_K+2)
 #define PARAM_SIGMA 7.00
 #define NEEDED_AES_FOR_SALT 3

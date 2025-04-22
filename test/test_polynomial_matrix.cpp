@@ -197,11 +197,11 @@ TEST(PolynomialMatrixTest, EncodeDecode1) {
             A(i, j)=p1;
         }
     
-    std::vector<uint16_t> flat = PolynomialMatrixUtils::Encode(A);
-    cpp_int val = vector_to_bigint_baseq(flat, PARAM_Q);
+    std::vector<uint8_t> flat = PolynomialMatrixUtils::Encode_pm(A);
+    //cpp_int val = PolynomialMatrixUtils::vector_to_bigint_baseq(flat, PARAM_Q);
 
-    std::vector<uint16_t> flat2 = bigint_to_vector_baseq(val, PARAM_Q, flat.size());
-    PolynomialMatrix<4, 4> A2 = PolynomialMatrixUtils::Decode<4, 4>(flat2);
+    //std::vector<uint16_t> flat2 = PolynomialMatrixUtils::bigint_to_vector_baseq(val, PARAM_Q, flat.size());
+    PolynomialMatrix<4, 4> A2 = PolynomialMatrixUtils::Decode_pm<4, 4>(flat);
 
 
     EXPECT_EQ(A, A2);

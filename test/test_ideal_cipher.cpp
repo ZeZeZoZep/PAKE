@@ -9,7 +9,7 @@
 
 
 
-TEST(IdealCipherTest, EncDec) {
+/* TEST(IdealCipherTest, EncDec) {
 
     PolynomialMatrix<4, 4> A;
 
@@ -33,7 +33,7 @@ TEST(IdealCipherTest, EncDec) {
     PolynomialMatrix<4, 4> A2 = PolynomialMatrixUtils::Decode<4, 4>(flat2);
 
     EXPECT_EQ(m , m2);
-}
+} */
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

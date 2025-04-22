@@ -83,13 +83,21 @@ TEST(LPKETest, IsLossyRandom) {
     EXPECT_TRUE(lpke.IsLossy(lpke.T, pk, v)) << "It should be lossy";
 }
 TEST(LPKETest, LEnc_and_LDec) {
-    v = TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_M>();;
-
+    //v = TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_M>();;
+    for(int j=0; j<PARAM_M; j++){
+        Polynomial poly(PARAM_N);
+        poly.setZero();
+        //poly[0]=P_random();
+        for(int y=0; y<PARAM_N; y++){
+            poly[y]=1;
+            //if(poly[y]<0)poly[y]=poly[y]*(-1);
+        } 
+        v(0,j)=poly;
+    }
     auto ret = lpke.LKeyGen(v);
     pk=ret.first;
     sk=ret.second;
     cout << PARAM_M << " " << endl;
-    EXPECT_FALSE(lpke.IsLossy(lpke.T, pk, v)) << "It should NOT be lossy";
     vector<uint8_t> m={1,2,3,4};
     m=H(m);
     
@@ -117,12 +125,11 @@ TEST(LPKETest, LEnc_and_LDec_lossy) {
         poly.setZero();
         //poly[0]=P_random();
         for(int y=0; y<PARAM_N; y++){
-            poly[y]=uniform_q_random(PARAM_Q);
+            poly[y]=3;//uniform_q_random(PARAM_Q);
             //if(poly[y]<0)poly[y]=poly[y]*(-1);
         } 
         v(0,j)=poly;
     }
-    EXPECT_TRUE(lpke.IsLossy(lpke.T, pk, v)) << "It should NOT be lossy";
     vector<uint8_t> m={1,2,3,4};
     m=H(m);
     

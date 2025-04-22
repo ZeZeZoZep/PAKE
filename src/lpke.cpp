@@ -73,10 +73,10 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
 
         for(int k=0; k<PARAM_N; k++){
             if(k%2==0){
-                poly[k]=gaussian_random(0,0.3);
+                poly[k]=//gaussian_random(0,3.5);
             }
         } 
-        e(k,0)=poly;
+        e(k,0)=poly;//SamplePolyCBD(PRF(PARAM_ETA1, rho, N), PARAM_ETA1)//poly;
     }
     
     PolynomialMatrix<1, 1> temp=p*e;
@@ -109,7 +109,7 @@ std::vector<uint8_t> decode_to_bytes(Polynomial d, uint16_t q) {
 vector<uint8_t> LPKE::LDec(PolynomialMatrix<1, PARAM_D>& sk, Cyphertext& ct) const {
 
 
-    PolynomialMatrix<1,1> d = ct.c - ct.u * sk;
+    PolynomialMatrix<1,1> d = ct.c - sk * ct.u;
     Polynomial temp = d(0,0);
     cout<< temp<<endl;
     return decode_to_bytes(temp,this->q);
