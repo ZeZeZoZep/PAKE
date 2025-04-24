@@ -2,79 +2,58 @@
 #include <vector>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <openssl/rand.h>
-#include "ideal_cipher.h"
+#include <openssl/evp.h>
 #include "int.h"
-#include "polynomial_matrix.h"
+#include "lpke.h"
+#include "pke.h"
 #include "polynomial_matrix_utils.h"
-#include "kem.h"
 #include "hash.h"
-#include "ideal_cipher_pake.h"
+
 
 using namespace std;
 using namespace boost::multiprecision;
+//10496
 
-/* vector<uint8_t> cpp_int_to_bytes(const cpp_int& value) {
-    vector<uint8_t> bytes;
-    export_bits(value, std::back_inserter(bytes), 8);
-    return bytes;
+
+std::vector<uint8_t> shake256_hash(const std::vector<uint8_t>& input, size_t output_len) {
+    std::vector<uint8_t> output(output_len);
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(ctx, EVP_shake256(), NULL);
+    EVP_DigestUpdate(ctx, input.data(), input.size());
+    EVP_DigestFinalXOF(ctx, output.data(), output_len);
+    EVP_MD_CTX_free(ctx);
+    return output;
 }
-cpp_int bytes_to_cpp_int(const vector<uint8_t>& bytes) {
-    cpp_int result;
-    import_bits(result, bytes.begin(), bytes.end(), 8, true);  // false = MSB first (big endian)
-    return result;
-}
- */
 uint8_t ssid=223;
 string password="password123";
 vector<uint8_t> vec;
-IdealCipher ideal_cipher;
-PolynomialMatrix<1, PARAM_D> sk;
-PolynomialMatrix<1, PARAM_D> pk;
+
+LPKE lpke;
+PolynomialMatrix<PARAM_D, PARAM_M> A;
+PolynomialMatrix<2*PARAM_D, PARAM_D * PARAM_K> T;
+PolynomialMatrix<1, PARAM_M> lpk;
+PolynomialMatrix<1, PARAM_D> lsk;
+
+PKE pke;
+PolynomialMatrix<1, PARAM_D> csk;
+PolynomialMatrix<1, PARAM_D> cpk;
 vector<uint8_t> rho;
-vector<uint8_t> z;
-vector<uint8_t> Epk;
 
-KEM kem;
+vector<uint8_t> d(32);
 
 
     
-TEST(PakeTest, STEP0) {
-    //CODICE CLIENT
-    vec=vector<uint8_t>(password.begin(), password.end());
-    vec.push_back(ssid);
-    vec=H(vec);
-    ideal_cipher=IdealCipher(vector<uint8_t>(vec.begin(),vec.begin() + 16));
+TEST(PakeTest, Setup) {
+  
+    auto ret = lpke.LSetup();
+    A = ret.first;
+    T = ret.second;
 
-    KEM kem;
-
-    auto ret = kem.KeyGen();
-    auto keygen_ret = ret.first;
-    
-    pk=get<0>(keygen_ret);
-    sk=get<1>(keygen_ret);
-    rho=get<2>(keygen_ret); 
-
-    vector<uint8_t> pk_bytes = PolynomialMatrixUtils::Encode_pm(pk);
-    pk_bytes.insert(pk_bytes.end(),rho.begin(),rho.end());
-
-    
-    vector<uint8_t> c_bytes = ideal_cipher.encrypt_bytes(pk_bytes);
-    
-    //CODICE SERVER
-    Epk = c_bytes;
-    vector<uint8_t> m2_bytes = ideal_cipher.decrypt_bytes(c_bytes);
-
-    vector<uint8_t> rho2;
-    vector<uint8_t> pk_bytes2;
-    pk_bytes2.insert(pk_bytes2.begin(),m2_bytes.begin(),m2_bytes.end() - size(rho));
-    rho2.insert(rho2.begin(),m2_bytes.end()- size(rho),m2_bytes.end());
-
-    PolynomialMatrix<1, PARAM_D> pk2 = PolynomialMatrixUtils::Decode_pm<1, PARAM_D>(pk_bytes2);
-
-
-    EXPECT_EQ(rho , rho2);
-
-    EXPECT_EQ(pk, pk2);
+    if (RAND_bytes(d.data(), d.size()) != 1) throw std::runtime_error("RAND_bytes failed");
+    auto ret2 = pke.KeyGen(d);
+    cpk=get<0>(ret2);
+    csk=get<1>(ret2);
+    rho=get<2>(ret2);
 }
 TEST(PakeTest, STEP1) {
 

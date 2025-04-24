@@ -6,6 +6,10 @@ enable_language(C CXX)
 set(CMAKE_CXX_STANDARD 17)  # Usa C++17 o successivo
 # Trova OpenSSL
 find_package(OpenSSL REQUIRED)
+# Trova Boost con i moduli necessari
+find_package(Boost REQUIRED COMPONENTS system thread)
+# Include le directory di Boost
+include_directories(${Boost_INCLUDE_DIRS})
 
 # Trova Eigen3
 find_package(Eigen3 REQUIRED)
@@ -30,17 +34,25 @@ set(CPP_FILES
     src/hash.cpp
     src/kem.cpp
     src/ideal_cipher.cpp
-    src/r.cpp
-    main.cpp
+    src/ideal_cipher_pake.cpp
+    #main.cpp
 )
 add_library(random_mgs OBJECT ${C_FILE})
 target_compile_options(random_mgs PRIVATE -Wall -O3 -march=native -mtune=native -fomit-frame-pointer -ftree-vectorize -funsafe-math-optimizations -mfpmath=sse -mavx2 -ftree-vectorize -maes ) 
 
 # Crea l'eseguibile e collega il file C compilato
-add_executable(my_project $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
+#add_executable(my_project $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
 
 # Aggiungi i test
-target_link_libraries(my_project OpenSSL::SSL OpenSSL::Crypto)
+#target_link_libraries(my_project OpenSSL::SSL OpenSSL::Crypto)
 
 enable_testing()
 add_subdirectory(test)
+
+# ---- WebSocket Server ----
+add_executable(pake_server server.cpp $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
+target_link_libraries(pake_server Boost::system OpenSSL::SSL OpenSSL::Crypto)
+
+# ---- WebSocket Client ----
+add_executable(pake_client client.cpp $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
+target_link_libraries(pake_client Boost::system OpenSSL::SSL OpenSSL::Crypto)

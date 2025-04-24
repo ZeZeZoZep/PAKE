@@ -7,6 +7,12 @@ LPKE::LPKE() {
     A = setup_result.first;
     T = setup_result.second;
 }
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+
 
 // ✅ Distruttore (se non ci sono risorse da liberare, può essere vuoto)
 LPKE::~LPKE() {}
@@ -55,7 +61,7 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
     cout<< "3"<<endl;
     PolynomialMatrix<1, 1> m_poly;
     m_poly(0,0)=bits_times_q_over_2(m,this->q);
-    cout<< m_poly(0,0)<<endl;
+    //cout<< m_poly(0,0)<<endl;
 
     cout<< "3"<<endl;
 
@@ -63,21 +69,23 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
 
     PolynomialMatrix<PARAM_M, 1> e;
 
-
     //uint8_t beta_i=0;
     uint8_t bit=0;
     for(int k=0; k<PARAM_M; k++){
 
         Polynomial poly(PARAM_N);
         poly.setZero();
-
         for(int k=0; k<PARAM_N; k++){
             if(k%2==0){
-                poly[k]=//gaussian_random(0,3.5);
+                poly[k]=gaussian_random(0, PARAM_SIGMA_L);
             }
+            //if(poly[k]<0)poly[k]
+
         } 
-        e(k,0)=poly;//SamplePolyCBD(PRF(PARAM_ETA1, rho, N), PARAM_ETA1)//poly;
+        e(k,0)=poly;
     }
+
+
     
     PolynomialMatrix<1, 1> temp=p*e;
     cout<< "3"<<endl;
@@ -111,7 +119,7 @@ vector<uint8_t> LPKE::LDec(PolynomialMatrix<1, PARAM_D>& sk, Cyphertext& ct) con
 
     PolynomialMatrix<1,1> d = ct.c - sk * ct.u;
     Polynomial temp = d(0,0);
-    cout<< temp<<endl;
+    //cout<< temp<<endl;
     return decode_to_bytes(temp,this->q);
 }
 double LPKE::compute_norm(PolynomialMatrix<1, PARAM_M>& e){
@@ -137,12 +145,12 @@ bool LPKE::IsLossy(PolynomialMatrix<2 * PARAM_D, PARAM_D * PARAM_K>& T, Polynomi
         for(int y=0; y<PARAM_N; y++){
             if(e(0,j)[y]>PARAM_Q/2)e(0,j)[y]=e(0,j)[y]-PARAM_Q;
         }
-    } 
+    }
     //cout<< e <<std::endl;
     for(int j=0; j<PARAM_M; j++){
         if(e(j).norm()>this->q/(8*std::sqrt(PARAM_N))){
             return true;
         }
-    }
+    } 
     return false;
 }

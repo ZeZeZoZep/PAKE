@@ -142,7 +142,20 @@ TEST(PolynomialTest, Multiplication_constant2) {
     for(int i=0; i<256; i++)
         EXPECT_EQ(prod[i], 3328);
 }
+/* TEST(PolynomialTest, Multiplication_constant3) {
+    Polynomial p1(256);
+    for(int i=0; i<256; i++)
+        p1[i] = 1;
+    Polynomial p2(256);
+    p2.setZero();
+    p2[1] = 3328;
 
+    Polynomial p1_ntt = p1.toNTT();
+    Polynomial p2_ntt = p2.toNTT();
+
+    Polynomial prod = p1_ntt * p2_ntt; // Sostituire con la logica della tua NTT multiplication
+    EXPECT_EQ(prod.fromNTT(), p1*-1);
+} */
 // Esegue tutti i test
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

@@ -60,7 +60,12 @@ KEM::Decaps_internal(
     //cout<<"Start Dec"<<endl;
 
     vector<uint8_t> m = pke.Decrypt(c1,c2,sk);
-    //cout<<"pke.Encrypt computed"<<endl;
+/*     std::cout << "[Server] Rpke.Encrypt computed: ";
+    for (std::size_t i = 0; i < 32; ++i) {
+        std::printf("%02X ", m[i]);
+    }
+    cout<<endl; */
+    //cout<<"m computed"<<endl;
 
     vector<uint16_t> pk_encoded=PolynomialMatrixUtils::Encode(pk);
     vector<uint16_t> array;
@@ -126,6 +131,12 @@ KEM::Encaps(
 ){
     vector<uint8_t> m(32);
     if (RAND_bytes(m.data(), m.size()) != 1) throw std::runtime_error("RAND_bytes failed");
+/*     cout<<"pke.Encrypt computed"<< m.data() <<endl;
+    std::cout << "[Server] Rpke.Encrypt computed: ";
+    for (std::size_t i = 0; i < 32; ++i) {
+        std::printf("%02X ", m[i]);
+    } 
+    std::cout << std::endl; */
     return Encaps_internal(pk,rho,m);
 }
 vector<uint8_t>

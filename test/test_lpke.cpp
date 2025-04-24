@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "../include/lpke.h"
-#include "../include/random.h"
-#include "../include/hash.h"
-
+#include "lpke.h"
+#include "random.h"
+#include "hash.h"
+#include "polynomial_matrix_utils.h"
 LPKE lpke;
 PolynomialMatrix<1, PARAM_M> v;
 PolynomialMatrix<1, PARAM_M> pk;
@@ -63,7 +63,9 @@ TEST(LPKETest, IsLossy) {
 TEST(LPKETest, IsLossyRandom) {
 
     v = TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_M>();;
-
+/*     vector<uint8_t>sbortra=PolynomialMatrixUtils::Encode_pm(v);
+    cout<<sbortra.size()<<endl;
+    EXPECT_TRUE(false);  */
     auto ret = lpke.LKeyGen(v);
     pk=ret.first;
     sk=ret.second;

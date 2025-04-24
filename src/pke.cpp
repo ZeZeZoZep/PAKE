@@ -55,6 +55,7 @@ pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, 1>> PKE::Encrypt(Polynomia
         N++;
     }
 
+
     PolynomialMatrix<1, 1> e2;
     e2(0,0) = SamplePolyCBD(PRF(PARAM_ETA2, rho, N), PARAM_ETA2);
     y.toNTT();
