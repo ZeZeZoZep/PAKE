@@ -54,16 +54,15 @@ Polynomial bits_times_q_over_2(const std::vector<uint8_t>& message, uint16_t q) 
     return result;
 }
 // ✅ LEnc: Cifra un messaggio `m` con la chiave pubblica `pk`
-Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, PolynomialMatrix<1, PARAM_M>& v) const {
+Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, PolynomialMatrix<1, PARAM_M>& v, vector<uint8_t> seed) const {
     Cyphertext ct;
     PolynomialMatrix<1, PARAM_M> p = PolynomialMatrix<1, PARAM_M>::Zero();
     p = pk + v;
-    cout<< "3"<<endl;
+
     PolynomialMatrix<1, 1> m_poly;
     m_poly(0,0)=bits_times_q_over_2(m,this->q);
     //cout<< m_poly(0,0)<<endl;
 
-    cout<< "3"<<endl;
 
     PolynomialMatrix<1, 1> c; //m.size()*8 = lambda, 256 se m 32 byte
 
@@ -71,9 +70,16 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
 
     //uint8_t beta_i=0;
     uint8_t bit=0;
+    if(seed.size()!=32){
+        seed.resize(32);
+        if (RAND_bytes(seed.data(), seed.size()) != 1) throw std::runtime_error("RAND_bytes failed");
+        cout<< "Generating random seed"<<endl;
+    }
+    uint8_t N = 0;
+
     for(int k=0; k<PARAM_M; k++){
 
-        Polynomial poly(PARAM_N);
+/*         Polynomial poly(PARAM_N);
         poly.setZero();
         for(int k=0; k<PARAM_N; k++){
             if(k%2==0){
@@ -81,14 +87,19 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
             }
             //if(poly[k]<0)poly[k]
 
-        } 
-        e(k,0)=poly;
+        }  */
+
+
+        e(k,0)=SamplePolyCBD_custom(PRF(15, seed, N++),15);//poly;
+        for(int i=0; i<PARAM_N; i++) e(k,0)[i]>1664 ? e(k,0)[i]=-e(k,0)[i]+PARAM_Q : 0;
+
     }
+
+
 
 
     
     PolynomialMatrix<1, 1> temp=p*e;
-    cout<< "3"<<endl;
     PolynomialMatrix<PARAM_D, 1> u=this->A*e;
 
     c = temp + m_poly;

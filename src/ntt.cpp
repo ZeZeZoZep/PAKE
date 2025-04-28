@@ -116,8 +116,8 @@ void shake256(const vector<uint8_t>& input, vector<uint8_t>& output) {
  * @return output di 64 * eta byte
  */
 std::vector<uint8_t> PRF(uint8_t eta, const std::vector<uint8_t>& s, uint8_t b) {
-    if (eta != 2 && eta != 3)
-        throw std::invalid_argument("eta deve essere 2 o 3");
+/*     if (eta != 2 && eta != 3)
+        throw std::invalid_argument("eta deve essere 2 o 3"); */
     if (s.size() != 32)
         throw std::invalid_argument("s deve essere lungo 32 byte");
 
@@ -196,6 +196,26 @@ Polynomial SamplePolyCBD(const vector<uint8_t>& B, int eta) {
     vector<int> b = BytesToBits(B);
     Polynomial f(N);
     for (int i = 0; i < N; i++) {
+        int x = 0, y = 0;
+        int start = 2 * eta * i;
+
+        for (int j = 0; j < eta; j++) x += (b[start + j] & 1);
+        for (int j = 0; j < eta; j++) y += (b[start + eta + j] & 1);
+
+        int diff = x - y;
+        if (diff < 0) diff += q;
+        f[i] = diff % q;
+    }
+    return f;
+}
+
+// Campionamento SamplePolyCBD con Eigen
+Polynomial SamplePolyCBD_custom(const vector<uint8_t>& B, int eta) {
+    if (B.size() != 64u * eta) throw runtime_error("L'array B deve avere lunghezza 64*eta byte.");
+    vector<int> b = BytesToBits(B);
+    Polynomial f(N);
+    f.setZero();
+    for (int i = 0; i < N; i+=2) {
         int x = 0, y = 0;
         int start = 2 * eta * i;
 

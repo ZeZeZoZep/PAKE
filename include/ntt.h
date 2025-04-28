@@ -70,4 +70,5 @@ std::vector<uint8_t> PRF(uint8_t eta, const std::vector<uint8_t>& s, uint8_t b);
 
 Polynomial SampleNTT(const vector<uint8_t>& seed, uint8_t idx1, uint8_t idx2);
 Polynomial SamplePolyCBD(const vector<uint8_t>& B, int eta);
+Polynomial SamplePolyCBD_custom(const vector<uint8_t>& B, int eta);
 #endif

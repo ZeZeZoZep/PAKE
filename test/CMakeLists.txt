@@ -38,6 +38,8 @@ target_link_libraries(test_ideal_cipher gtest gtest_main OpenSSL::SSL OpenSSL::C
 add_executable(test_pake test_pake.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/ideal_cipher.cpp ../src/random.cpp ../src/hash.cpp ../src/pke.cpp ../src/kem.cpp ../src/ideal_cipher_pake.cpp)
 target_link_libraries(test_pake random_mgs gtest gtest_main OpenSSL::SSL OpenSSL::Crypto)
 
+add_executable(test_rom_pake test_rom_pake.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/ideal_cipher.cpp ../src/hash.cpp ../src/pke.cpp ../src/trapdoor_handler.cpp ../src/random.cpp ../src/babai.cpp ../src/lpke.cpp)
+target_link_libraries(test_rom_pake random_mgs gtest gtest_main OpenSSL::SSL OpenSSL::Crypto)
 
 #add_executable(test_karatsuba test_karatsuba.cpp ../src/int.cpp ../src/ntt.cpp ../src/polynomial.cpp ../src/trapdoor_handler.cpp ../src/random.cpp ../src/babai.cpp ../src/lpke.cpp ../src/r.cpp  ../src/hash.cpp)
 #target_link_libraries(test_karatsuba random_mgs gtest gtest_main OpenSSL::SSL OpenSSL::Crypto)
@@ -53,4 +55,5 @@ add_test(NAME PKE COMMAND test_pke)
 add_test(NAME KEM COMMAND test_kem)
 add_test(NAME IdealCipher COMMAND test_ideal_cipher)
 add_test(NAME PAKE COMMAND test_pake)
+add_test(NAME ROMPAKE COMMAND test_rom_pake)
 #add_test(NAME Karatsuba COMMAND test_karatsuba)

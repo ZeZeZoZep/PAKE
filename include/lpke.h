@@ -28,7 +28,7 @@ class LPKE {
         ~LPKE();
         pair<PolynomialMatrix<PARAM_D, PARAM_M>,PolynomialMatrix<2*PARAM_D,PARAM_D*PARAM_K>> LSetup() const;
         pair<PolynomialMatrix<1, PARAM_M>,PolynomialMatrix<1, PARAM_D>> LKeyGen(PolynomialMatrix<1, PARAM_M>& v) const;
-        Cyphertext LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, PolynomialMatrix<1, PARAM_M>& v) const;
+        Cyphertext LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, PolynomialMatrix<1, PARAM_M>& v,vector<uint8_t> seed={}) const;
         vector<uint8_t> LDec(PolynomialMatrix<1, PARAM_D>& sk, Cyphertext& ct) const;
         bool IsLossy(PolynomialMatrix<2*PARAM_D,PARAM_D*PARAM_K>& T, PolynomialMatrix<1, PARAM_M>& pk, PolynomialMatrix<1, PARAM_M>& v) const;
 };

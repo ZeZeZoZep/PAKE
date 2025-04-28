@@ -33,6 +33,7 @@ PolynomialMatrix<PARAM_D, PARAM_M> A;
 PolynomialMatrix<2*PARAM_D, PARAM_D * PARAM_K> T;
 PolynomialMatrix<1, PARAM_M> lpk;
 PolynomialMatrix<1, PARAM_D> lsk;
+PolynomialMatrix<1, PARAM_M> b;
 
 PKE pke;
 PolynomialMatrix<1, PARAM_D> csk;
@@ -40,9 +41,11 @@ PolynomialMatrix<1, PARAM_D> cpk;
 vector<uint8_t> rho;
 
 vector<uint8_t> d(32);
-
-
+vector<uint8_t> c1,c2,bytes,m;
+pair<PolynomialMatrix<1, 2>, PolynomialMatrix<1, 1>> C;
+Cyphertext ct;
     
+
 TEST(PakeTest, Setup) {
   
     auto ret = lpke.LSetup();
@@ -56,67 +59,46 @@ TEST(PakeTest, Setup) {
     rho=get<2>(ret2);
 }
 TEST(PakeTest, STEP1) {
+    b=PolynomialMatrixUtils::Decode_pm<1, PARAM_M>(shake256_hash(vector<uint8_t>(password.begin(), password.end()),10496));
+    auto ret = lpke.LKeyGen(b);
+    lpk=ret.first;
+    lsk=ret.second;
+}
 
-    KEM kem_server;
-    auto ret = kem_server.Encaps(pk,rho);
-    auto c=ret.second;
-    vector<uint8_t> K=ret.first;
+TEST(PakeTest, STEP2) {
+    m=vector<uint8_t>(32);
+    if (RAND_bytes(m.data(), m.size()) != 1) throw std::runtime_error("RAND_bytes failed");
+    ct = lpke.LEnc(lpk,m,b,H(m));
+    vector<uint8_t> lpk_bytes = PolynomialMatrixUtils::Encode_pm(lpk);
+    c1 = PolynomialMatrixUtils::Encode_pm(ct.u);
+    c2 = PolynomialMatrixUtils::Encode_pm(ct.c);
+    bytes = concatVectors(vector<uint8_t>(password.begin(), password.end()), lpk_bytes,c1,c2);
+    C=pke.Encrypt(cpk,rho,bytes,m);
+}
 
-    vector<uint8_t> c1 = PolynomialMatrixUtils::Encode_pm(c.first);
-    vector<uint8_t> c2 = PolynomialMatrixUtils::Encode_pm(c.second);
-    
-    vector<uint8_t> bytes_m = concatVectors(vec,Epk,c1,c2,K);
+TEST(PakeTest, STEP3) {
+    Cyphertext ct;
+    ct.u = PolynomialMatrixUtils::Decode_pm<PARAM_D, 1>(c1);
+    ct.c = PolynomialMatrixUtils::Decode_pm<1, 1>(c2);
+    vector<uint8_t> m_check = lpke.LDec(lsk,ct);
 
+    Cyphertext ct_check = lpke.LEnc(lpk,m_check,b,H(m_check));
+    vector<uint8_t> lpk_bytes = PolynomialMatrixUtils::Encode_pm(lpk);
+    vector<uint8_t> c1_check = PolynomialMatrixUtils::Encode_pm(ct_check.u);
+    vector<uint8_t> c2_check = PolynomialMatrixUtils::Encode_pm(ct_check.c);
+    vector<uint8_t> bytes_check = concatVectors(vector<uint8_t>(password.begin(), password.end()), lpk_bytes,c1_check,c2_check);
 
-    //bytes_m = concat(bytes_m, static_cast<vector<uint8_t>>(password));
-    //bytes_m = concat(bytes_m, static_cast<vector<uint8_t>>(ssid));
+    pair<PolynomialMatrix<1, 2>, PolynomialMatrix<1, 1>> C_check=pke.Encrypt(cpk,rho,bytes_check,m_check);
 
-    vector<uint8_t> auth = H(bytes_m);
-
-    
-    //CODICE SERVER
-    
-    vector<uint8_t> c1_server = c1;
-    vector<uint8_t> c2_server = c2;
-
-    PolynomialMatrix<1, PARAM_D> A2 = PolynomialMatrixUtils::Decode_pm<1, PARAM_D>(c1_server);
-    PolynomialMatrix<1, 1> A3 = PolynomialMatrixUtils::Decode_pm<1, 1>(c2_server);
-
-    
-    vector<uint8_t> K_first=kem.Decaps(sk,pk,rho,z,A2,A3);
-
-
-    vector<uint8_t> c1_s = PolynomialMatrixUtils::Encode_pm(c.first);
-    vector<uint8_t> c2_s = PolynomialMatrixUtils::Encode_pm(c.second);
-
-
-    vector<uint8_t> serve_bytes = concatVectors(vec,Epk,c1_s,c2_s,K_first);
-
-    vector<uint8_t> auth2 = H(serve_bytes);
-
-
-    EXPECT_EQ(K, K_first);
-    EXPECT_EQ(auth, auth2);
-
-    bytes_m=vector<uint8_t>(bytes_m.begin()+password.length(),bytes_m.end());
-    serve_bytes=vector<uint8_t>(serve_bytes.begin()+password.length(),serve_bytes.end());
-
-    vector<uint8_t> sk_s = H(bytes_m);
-    vector<uint8_t> sk_c = H(serve_bytes);
-    EXPECT_EQ(sk_s, sk_c);
+    EXPECT_EQ(m_check, m);
+    EXPECT_EQ(C, C_check);
+    EXPECT_EQ(ct.c, ct_check.c);
+    EXPECT_EQ(ct.u, ct_check.u);
 
 }
-TEST(PakeTest, functions) {
-    ID_PAKE client(ssid,password);
-    ID_PAKE server(ssid,password,client.Epk);
-    auto ret = server.auth();
-    auto c = ret.first;
-    auto auth = ret.second;
-    vector<uint8_t> sessionkey_s= server.derive(c,auth);
-    client.check(c,auth);
-    vector<uint8_t> sessionkey_c = client.derive(c,auth);
-    EXPECT_EQ(sessionkey_s, sessionkey_c);
-}
+
+
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
