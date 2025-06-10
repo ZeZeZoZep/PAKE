@@ -61,8 +61,8 @@ pair<PolynomialMatrix<1, PARAM_D>,PolynomialMatrix<1, 1>> PKE::Encrypt(Polynomia
     y.toNTT();
     PolynomialMatrix<1, PARAM_D> u = y*A  + e1;
 
-    vector<uint16_t> decode = ByteDecode(m,1,PARAM_Q);
-    vector<uint16_t> temp = Decompress(decode,1,PARAM_Q);
+    vector<uint32_t> decode = ByteDecode(m,1,PARAM_Q);
+    vector<uint32_t> temp = Decompress(decode,1,PARAM_Q);
     PolynomialMatrix<PARAM_D,1> y_transposed;
 
     for(int i=0; i<PARAM_D; i++)y_transposed(i,0)=y(0,i);   
@@ -84,7 +84,7 @@ vector<uint8_t> PKE::Decrypt(PolynomialMatrix<1, PARAM_D> c1, PolynomialMatrix<1
     for(int i=0; i<PARAM_D; i++)s_transposed(i,0)=s(0,i);
     PolynomialMatrix<1, 1> w = c2 - c1*s_transposed;
 
-    vector<uint16_t> w_array(256);
+    vector<uint32_t> w_array(256);
     for(int i=0; i<PARAM_N; i++)w_array[i]=w(0,0)[i];
 
     m= ByteEncode(Compress(w_array,1,PARAM_Q),1,PARAM_Q);

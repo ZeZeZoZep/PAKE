@@ -38,7 +38,7 @@ vector<int> BytesToBits(const vector<uint8_t>& bytes) {
 // --- Algoritmo 5: ByteEncode ---
 // Codifica un array di 256 interi, ognuno rappresentabile con d bit,
 // in un array di byte. L'output è un array di 32*d byte (cioè 256*d bit convertiti in byte).
-vector<uint8_t> ByteEncode(const vector<uint16_t>& F, int d, uint16_t q = 3329) {
+vector<uint8_t> ByteEncode(const vector<uint32_t>& F, int d, uint32_t q = 1073734913) {
     if(F.size() != 256) {
         throw runtime_error("L'array di input deve contenere 256 interi.");
     }
@@ -46,14 +46,14 @@ vector<uint8_t> ByteEncode(const vector<uint16_t>& F, int d, uint16_t q = 3329) 
         throw runtime_error("Il parametro d deve essere compreso tra 1 e 12.");
     }
     // Se d < 12, m = 2^d; se d == 12, m = q.
-    uint16_t m = (d < 12) ? (1 << d) : q;
+    uint32_t m = (d < 12) ? (1 << d) : q;
 
     // Prepariamo un array di bit di lunghezza 256*d.
     vector<int> b(256 * d, 0);
     
     // Per ogni intero F[i], estrai i d bit in rappresentazione little-endian.
     for (int i = 0; i < 256; i++) {
-        uint16_t a = F[i] % m;  // Assicuriamoci che a sia in Z_m.
+        uint32_t a = F[i] % m;  // Assicuriamoci che a sia in Z_m.
         for (int j = 0; j < d; j++) {
             // Estrae il j-esimo bit (LSB al j=0)
             b[i * d + j] = a % 2;
@@ -68,7 +68,7 @@ vector<uint8_t> ByteEncode(const vector<uint16_t>& F, int d, uint16_t q = 3329) 
 
 // --- Algoritmo 6: ByteDecode ---
 // Decodifica un array di byte (ottenuto da ByteEncode) in un array di 256 interi a d bit.
-vector<uint16_t> ByteDecode(const vector<uint8_t>& B, int d, uint16_t q = 3329) {
+vector<uint32_t> ByteDecode(const vector<uint8_t>& B, int d, uint32_t q = 1073734913) {
     if(d < 1 || d > 12) {
         throw runtime_error("Il parametro d deve essere compreso tra 1 e 12.");
     }
@@ -80,12 +80,12 @@ vector<uint16_t> ByteDecode(const vector<uint8_t>& B, int d, uint16_t q = 3329) 
     }
     
     // Se d < 12, m = 2^d; se d == 12, m = q.
-    uint16_t m = (d < 12) ? (1 << d) : q;
-    vector<uint16_t> F(256, 0);
+    uint32_t m = (d < 12) ? (1 << d) : q;
+    vector<uint32_t> F(256, 0);
     
     // Per ogni intero, ricostruisce il valore come somma pesata dei d bit.
     for (int i = 0; i < 256; i++) {
-        uint16_t value = 0;
+        uint32_t value = 0;
         for (int j = 0; j < d; j++) {
             // b[i*d + j] * 2^j
             value += b[i * d + j] * (1 << j);

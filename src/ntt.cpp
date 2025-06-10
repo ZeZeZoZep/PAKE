@@ -7,8 +7,8 @@ using namespace std;
 using namespace Eigen;
 
 // Funzione per invertire i bit
-uint16_t bitrev7(uint16_t x) {
-    uint16_t r = 0;
+uint32_t bitrev7(uint32_t x) {
+    uint32_t r = 0;
     for (int i = 0; i < 7; i++) {
         r = (r << 1) | (x & 1);
         x >>= 1;
@@ -17,17 +17,26 @@ uint16_t bitrev7(uint16_t x) {
 }
 
 // Recupera il valore ζ₂BitRev7(i)+1 modulo q
-uint16_t getZeta2(uint16_t i) {
-    uint16_t rev = bitrev7(i);
-    return (arr[rev] + 1) % q;
+uint32_t getZeta2(uint32_t i) {
+    //uint32_t rev = bitrev7(i);
+    return (arr[i]); //% q;
 }
 
 // Base-case multiplication con Eigen
-Vector2i baseCaseMultiply(Vector2i f, Vector2i g, uint16_t zeta) {
-    uint32_t t = ((uint32_t) f[1] * g[1]) % q;
-    int h0 = ((uint32_t) f[0] * g[0] + (uint32_t) zeta * t) % q;
-    int h1 = ((uint32_t) f[0] * g[1] + (uint32_t) f[1] * g[0]) % q;
-    return Vector2i(h0, h1);
+Vector2i baseCaseMultiply(const Vector2i& f, const Vector2i& g, uint32_t zeta)
+{
+    // prodotti a 64 bit, riduzione mod q immediata
+    uint32_t t  = (uint64_t)f[1] * g[1] % q;            // f1·g1  mod q
+    uint32_t p0 = (uint64_t)f[0] * g[0] % q;            // f0·g0  mod q
+    uint32_t p1 = (uint64_t)zeta * t   % q;             // zeta·t mod q
+    uint32_t h0 = p0 + p1;
+    if (h0 >= q) h0 -= q;                               // somma < 2q → un cond-sub
+
+    uint32_t h1  = ((uint64_t)f[0] * g[1] % q +
+                    (uint64_t)f[1] * g[0] % q);
+    if (h1 >= q) h1 -= q;
+
+    return Vector2i{h0, h1};                            // Vector2i unsigned a 32 bit
 }
 
 // Somma due rappresentazioni NTT con Eigen
@@ -52,7 +61,7 @@ Polynomial subNTTs(const Polynomial &f, const Polynomial &g) {
 Polynomial multiplyNTTs(const Polynomial &f, const Polynomial &g) {
     Polynomial h(N);
     for (int i = 0; i < N / 2; i++) {
-        uint16_t zeta = getZeta2(i);
+        uint32_t zeta = getZeta2(i);
         Vector2i result = baseCaseMultiply(f.segment<2>(2 * i), g.segment<2>(2 * i), zeta);
         h.segment<2>(2 * i) = result;
     }
@@ -67,9 +76,9 @@ Polynomial ntt(Polynomial f) {
     int i = 1;
     for (int len = 128; len >= 2; len /= 2) {
         for (int start = 0; start < N; start += 2 * len) {
-            uint16_t zeta = zetas[i++] % q;
+            uint32_t zeta = zetas[i++] % q;
             for (int j = start; j < start + len; j++) {
-                uint16_t t = ((uint32_t) zeta * f[j + len]) % q;
+                uint32_t t = ((uint64_t) zeta * f[j + len]) % q;
                 f[j + len] = (f[j] + q - t) % q;
                 f[j] = (f[j] + t) % q;
             }
@@ -84,17 +93,17 @@ Polynomial inv_ntt(Polynomial f_hat) {
     int i = 127;
     for (int len = 2; len <= 128; len *= 2) {
         for (int start = 0; start < N; start += 2 * len) {
-            uint16_t zeta = zetas[i--] % q;
+            uint32_t zeta = zetas[i--] % q;
             for (int j = start; j < start + len; j++) {
-                uint16_t t = f[j];
+                uint32_t t = f[j];
                 f[j] = (t + f[j + len]) % q;
                 int diff = (f[j + len] >= t) ? f[j + len] - t : f[j + len] + q - t;
-                f[j + len] = ((uint32_t) zeta * diff) % q;
+                f[j + len] = ((uint64_t) zeta * diff) % q;
             }
         }
     }
     for (int j = 0; j < N; j++) {
-        f[j] = ((uint32_t) f[j] * 3303) % q;
+        f[j] = ((uint64_t) f[j] * 1065346359) % q;
     }
     return f;
 }
@@ -141,23 +150,23 @@ std::vector<uint8_t> sha3_512(const std::vector<uint8_t>& input) {
 }
 
 // Decompress_d: Z_{2^d} → Z_q
-std::vector<uint16_t> Decompress(const std::vector<uint16_t>& y, int d, uint16_t q) {
-    std::vector<uint16_t> result(y.size());
+std::vector<uint32_t> Decompress(const std::vector<uint32_t>& y, int d, uint32_t q) {
+    std::vector<uint32_t> result(y.size());
     const double factor = static_cast<double>(q) / static_cast<double>(1 << d);
 
     for (size_t i = 0; i < y.size(); ++i) {
-        result[i] = static_cast<uint16_t>(std::round(y[i] * factor));
+        result[i] = static_cast<uint32_t>(std::round(y[i] * factor));
     }
 
     return result;
 }
 // Compress_d: Z_q → Z_{2^d}
-std::vector<uint16_t> Compress(const std::vector<uint16_t>& x, int d, uint16_t q) {
-    std::vector<uint16_t> result(x.size());
+std::vector<uint32_t> Compress(const std::vector<uint32_t>& x, int d, uint32_t q) {
+    std::vector<uint32_t> result(x.size());
     const double factor = static_cast<double>(1 << d) / static_cast<double>(q);
 
     for (size_t i = 0; i < x.size(); ++i) {
-        uint16_t compressed = static_cast<uint16_t>(std::round(x[i] * factor)) & ((1 << d) - 1);
+        uint32_t compressed = static_cast<uint32_t>(std::round(x[i] * factor)) & ((1 << d) - 1);
         result[i] = compressed;
     }
 
@@ -177,8 +186,8 @@ Polynomial SampleNTT(const vector<uint8_t>& seed, uint8_t idx1, uint8_t idx2) {
     while (j < N) {
         vector<uint8_t> shake_output(3);
         shake256(B, shake_output);
-        uint16_t d1 = shake_output[0] + 256 * (shake_output[1] & 0x0F);
-        uint16_t d2 = (shake_output[1] >> 4) + 16 * shake_output[2];
+        uint32_t d1 = shake_output[0] + 256 * (shake_output[1] & 0x0F);
+        uint32_t d2 = (shake_output[1] >> 4) + 16 * shake_output[2];
 
         if (d1 < q) a[j++] = d1;
         if (j < N && d2 < q) a[j++] = d2;

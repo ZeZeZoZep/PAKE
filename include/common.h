@@ -5,8 +5,8 @@
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
-#define PARAM_Q 3329
-#define PARAM_K 12
+#define PARAM_Q 1073734913
+#define PARAM_K 30
 #define PARAM_N 256
 #define PARAM_D 2
 #if PARAM_D==1

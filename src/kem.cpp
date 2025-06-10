@@ -23,11 +23,11 @@ KEM::Encaps_internal(
     vector<uint8_t>& m
 ){
     //cout<<"Start enc"<<endl;
-    vector<uint16_t> pk_encoded=PolynomialMatrixUtils::Encode(pk);
-    vector<uint16_t> array;
+    vector<uint32_t> pk_encoded=PolynomialMatrixUtils::Encode(pk);
+    vector<uint32_t> array;
     vector<uint8_t> ek,enc;
     for(int i=0; i<PARAM_D; i++){
-        vector<uint16_t> array(pk_encoded.begin()+i*PARAM_N,pk_encoded.begin()+(i+1)*PARAM_N);
+        vector<uint32_t> array(pk_encoded.begin()+i*PARAM_N,pk_encoded.begin()+(i+1)*PARAM_N);
         vector<uint8_t> enc = ByteEncode(array,12,PARAM_Q);
         ek.insert(ek.end(),enc.begin(),enc.end());
     }
@@ -67,11 +67,11 @@ KEM::Decaps_internal(
     cout<<endl; */
     //cout<<"m computed"<<endl;
 
-    vector<uint16_t> pk_encoded=PolynomialMatrixUtils::Encode(pk);
-    vector<uint16_t> array;
+    vector<uint32_t> pk_encoded=PolynomialMatrixUtils::Encode(pk);
+    vector<uint32_t> array;
     vector<uint8_t> ek,enc;
     for(int i=0; i<PARAM_D; i++){
-        vector<uint16_t> array(pk_encoded.begin()+i*PARAM_N,pk_encoded.begin()+(i+1)*PARAM_N);
+        vector<uint32_t> array(pk_encoded.begin()+i*PARAM_N,pk_encoded.begin()+(i+1)*PARAM_N);
         vector<uint8_t> enc = ByteEncode(array,12,PARAM_Q);
         ek.insert(ek.end(),enc.begin(),enc.end());
     }
@@ -87,10 +87,10 @@ KEM::Decaps_internal(
     //cout<<"K computed"<<endl;
 
 
-    vector<uint16_t> c1_encoded=PolynomialMatrixUtils::Encode(c1);
+    vector<uint32_t> c1_encoded=PolynomialMatrixUtils::Encode(c1);
     vector<uint8_t> c1_bytes;
     for(int i=0; i<PARAM_D; i++){
-        vector<uint16_t> array(c1_encoded.begin()+i*PARAM_N,c1_encoded.begin()+(i+1)*PARAM_N);
+        vector<uint32_t> array(c1_encoded.begin()+i*PARAM_N,c1_encoded.begin()+(i+1)*PARAM_N);
         vector<uint8_t> enc = ByteEncode(array,12,PARAM_Q);
         c1_bytes.insert(c1_bytes.end(),enc.begin(),enc.end());
     }

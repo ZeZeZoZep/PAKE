@@ -9,6 +9,6 @@
 
 signed int P_random();
 signed int gaussian_random(RR_t mean, RR_t std_dev);
-uint16_t uniform_q_random(int q);
+uint32_t uniform_q_random(int q);
 
 #endif

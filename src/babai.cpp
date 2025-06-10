@@ -112,7 +112,7 @@ pair<int, VectorXi> babai_nearest_plane(const VectorXi& b) {
 
 /* // Main Function
 int main() {
-    int q = 3329;
+    int q = 1073734913;
     int k = 12;
 
     // Define g vector

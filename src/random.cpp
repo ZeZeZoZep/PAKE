@@ -23,12 +23,12 @@ signed int P_random() {
 
 
 
-uint16_t uniform_q_random(int q) {
+uint32_t uniform_q_random(int q) {
     static random_device rd;  // Seed casuale
     static mt19937 gen(rd()); // Generatore Mersenne Twister
     static uniform_real_distribution<double> dist(0.0, static_cast<double>(q)); // Distribuzione uniforme
     
-    return static_cast<int16_t>(round(dist(gen))); // Arrotonda al numero intero più vicino
+    return static_cast<int32_t>(round(dist(gen))); // Arrotonda al numero intero più vicino
 }
 
 //==============================================================================

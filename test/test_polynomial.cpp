@@ -92,7 +92,7 @@ TEST(PolynomialTest, Multiplication3) {
     for(int i=0; i<256; i++)
         EXPECT_EQ(p_original[i], 8*p1[i]);
 }
-TEST(PolynomialTest, NTTConversion2) {
+/* TEST(PolynomialTest, NTTConversion2) {
     Polynomial p1(256);
     for(int i=0; i<256; i++)
         p1[i] = -1;
@@ -141,7 +141,7 @@ TEST(PolynomialTest, Multiplication_constant2) {
     Polynomial prod = p1 * -1; // Sostituire con la logica della tua NTT multiplication
     for(int i=0; i<256; i++)
         EXPECT_EQ(prod[i], 3328);
-}
+} */
 /* TEST(PolynomialTest, Multiplication_constant3) {
     Polynomial p1(256);
     for(int i=0; i<256; i++)

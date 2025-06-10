@@ -13,8 +13,8 @@ using namespace boost::multiprecision;
 
 std::vector<int> BytesToBits(const std::vector<uint8_t>& bytes);
 std::vector<uint8_t> BitsToBytes(const std::vector<int>& bits);
-std::vector<uint8_t> ByteEncode(const std::vector<uint16_t>& F, int d, uint16_t q);
-std::vector<uint16_t> ByteDecode(const std::vector<uint8_t>& B, int d, uint16_t q);
+std::vector<uint8_t> ByteEncode(const std::vector<uint32_t>& F, int d, uint32_t q);
+std::vector<uint32_t> ByteDecode(const std::vector<uint8_t>& B, int d, uint32_t q);
 
 template<typename... Vectors>
 std::vector<uint8_t> concatVectors(const std::vector<uint8_t>& first, const Vectors&... rest) {

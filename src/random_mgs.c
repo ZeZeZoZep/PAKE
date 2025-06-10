@@ -171,7 +171,7 @@ int algorithmF(const double mu, const double sigma) {
     random_bytes(randomExpFirst);
     random_bytes(randomExpFirst + 16);
 
-    const double U_1 = *((uint16_t *) randomExpFirst) / (UINT16_MAX*1.0);
+    const double U_1 = *((uint32_t *) randomExpFirst) / (UINT32_MAX*1.0);
     {
       const unsigned long long int I_i = *((uint64_t *) (randomExpFirst + 2));
       const int j_i = __builtin_ctzll(I_i);
@@ -182,7 +182,7 @@ int algorithmF(const double mu, const double sigma) {
       expVariateIndex++;
     }
 
-    const double U_2 = *((uint16_t *) (randomExpFirst + 10)) / (UINT16_MAX*1.0);
+    const double U_2 = *((uint32_t *) (randomExpFirst + 10)) / (UINT32_MAX*1.0);
     {
       const unsigned long long int I_i = *((uint64_t *) (randomExpFirst + 12));
       const int j_i = __builtin_ctzll(I_i);
@@ -194,7 +194,7 @@ int algorithmF(const double mu, const double sigma) {
       expVariateIndex++;
     }
     
-    const double U_3 = *((uint16_t *) (randomExpFirst + 20)) / (UINT16_MAX*1.0);
+    const double U_3 = *((uint32_t *) (randomExpFirst + 20)) / (UINT32_MAX*1.0);
     {
       const unsigned long long int I_i = *((uint64_t *) (randomExpFirst + 22));
       const int j_i = __builtin_ctzll(I_i);
@@ -208,8 +208,8 @@ int algorithmF(const double mu, const double sigma) {
 
     for(; expVariateIndex < 3;) {
       for(; randomExpSecondIndex < 8; randomExpSecondIndex++) {
-        const double U1 = *((uint16_t *) (randomExpSecond + randomExpSecondIndex*2)) / (UINT16_MAX*1.0);
-        const double U2 = *((uint16_t *) (randomExpSecond + randomExpSecondIndex*2 + 8)) / (UINT16_MAX*1.0);
+        const double U1 = *((uint32_t *) (randomExpSecond + randomExpSecondIndex*2)) / (UINT32_MAX*1.0);
+        const double U2 = *((uint32_t *) (randomExpSecond + randomExpSecondIndex*2 + 8)) / (UINT32_MAX*1.0);
         const double bU1 = b - U1;
         const double Y = a/bU1;
         const double L = (U2*H + D)*(bU1)*(bU1);

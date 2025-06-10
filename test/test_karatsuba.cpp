@@ -93,7 +93,7 @@ vector<int> karatsuba(vector<int> a, vector<int> b) {
 
     return result;
 }
-Polynomial bits_times_q_over_20(const std::vector<uint8_t>& message, uint16_t q) {
+Polynomial bits_times_q_over_20(const std::vector<uint8_t>& message, uint32_t q) {
     
     Polynomial result(message.size() * 8);
 

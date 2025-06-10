@@ -34,9 +34,9 @@ pair<PolynomialMatrix<1, PARAM_M>, PolynomialMatrix<1, PARAM_D>> LPKE::LKeyGen(P
     }
     uint8_t N = 0;
     for(int i=0; i<PARAM_D; i++){
-        s(0,i)=SamplePolyCBD_custom(PRF(15, seed, N), 15);
+        s(0,i)=SamplePolyCBD_custom(PRF(INT8_MAX, seed, N), INT8_MAX);
         N++;
-        for(int k=0; k<PARAM_N; k++) s(0,i)[k]>1664 ? s(0,i)[k]=-s(0,i)[k]+PARAM_Q : 0;
+        for(int k=0; k<PARAM_N; k++) s(0,i)[k]>536867456 ? s(0,i)[k]=-s(0,i)[k]+PARAM_Q : 0;
     }
     PolynomialMatrix<1, PARAM_M> e;
     for(int i=0; i<PARAM_M; i++){
@@ -58,7 +58,7 @@ pair<PolynomialMatrix<1, PARAM_M>, PolynomialMatrix<1, PARAM_D>> LPKE::LKeyGen(P
     cout<< "pene pene"<<endl;
     return {b,s};
 }
-Polynomial bits_times_q_over_2(const std::vector<uint8_t>& message, uint16_t q) {
+Polynomial bits_times_q_over_2(const std::vector<uint8_t>& message, uint32_t q) {
     
     Polynomial result(message.size() * 8);
 
@@ -97,8 +97,8 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
     uint8_t N = 0;
 
     for(int k=0; k<PARAM_M; k++){
-        y(k,0)=SamplePolyCBD_custom(PRF(15, seed, N++),15);//poly;
-        for(int i=0; i<PARAM_N; i++) y(k,0)[i]>1664 ? y(k,0)[i]=-y(k,0)[i]+PARAM_Q : 0;
+        y(k,0)=SamplePolyCBD_custom(PRF(INT8_MAX, seed, N++),INT8_MAX);//poly;
+        for(int i=0; i<PARAM_N; i++) y(k,0)[i]>536867456 ? y(k,0)[i]=-y(k,0)[i]+PARAM_Q : 0;
     }
 
     PolynomialMatrix<PARAM_D, 1> e1;
@@ -123,13 +123,13 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
     return ct;
 }
 
-std::vector<uint8_t> decode_to_bytes(Polynomial d, uint16_t q) {
+std::vector<uint8_t> decode_to_bytes(Polynomial d, uint32_t q) {
     if (d.size() != 256)
         throw std::invalid_argument("Il vettore d deve contenere 256 elementi.");
 
     std::vector<uint8_t> out(32, 0);  // 256 bit → 32 byte
-    uint16_t lower = q / 4;
-    uint16_t upper = (3 * q) / 4;
+    uint32_t lower = q / 4;
+    uint32_t upper = (3 * q) / 4;
 
     for (int i = 0; i < 256; ++i) {
         uint8_t bit = (d(i) >= lower && d(i) <= upper) ? 1 : 0;
