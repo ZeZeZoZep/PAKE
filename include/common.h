@@ -21,7 +21,7 @@
     #error "Unsupported value for PARAM_D"
 #endif
         
-#define PARAM_M PARAM_D*(PARAM_K+2)
+#define PARAM_M PARAM_D*(PARAM_K+2) //2*(PARAM_D+1)*PARAM_K
 #define PARAM_SIGMA 7.00
 #define NEEDED_AES_FOR_SALT 3
 #define PARAM_ETA1 2

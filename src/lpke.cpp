@@ -23,9 +23,27 @@ pair<PolynomialMatrix<PARAM_D, PARAM_M>, PolynomialMatrix<2 * PARAM_D, PARAM_D *
 }
 
 // ✅ LKeyGen: Genera chiavi pubblica `pk` e segreta `sk`
-pair<PolynomialMatrix<1, PARAM_M>, PolynomialMatrix<1, PARAM_D>> LPKE::LKeyGen(PolynomialMatrix<1, PARAM_M>& v) const {
-    PolynomialMatrix<1, PARAM_D> s=TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_D>();
+pair<PolynomialMatrix<1, PARAM_M>, PolynomialMatrix<1, PARAM_D>> LPKE::LKeyGen(PolynomialMatrix<1, PARAM_M>& v,vector<uint8_t> seed) const {
+    //PolynomialMatrix<1, PARAM_D> s=TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_D>();
+    PolynomialMatrix<1, PARAM_D> s;
+    uint8_t bit=0;
+    if(seed.size()!=32){
+        seed.resize(32);
+        if (RAND_bytes(seed.data(), seed.size()) != 1) throw std::runtime_error("RAND_bytes failed");
+        cout<< "Generating random seed"<<endl;
+    }
+    uint8_t N = 0;
+    for(int i=0; i<PARAM_D; i++){
+        s(0,i)=SamplePolyCBD_custom(PRF(15, seed, N), 15);
+        N++;
+        for(int k=0; k<PARAM_N; k++) s(0,i)[k]>1664 ? s(0,i)[k]=-s(0,i)[k]+PARAM_Q : 0;
+    }
     PolynomialMatrix<1, PARAM_M> e;
+    for(int i=0; i<PARAM_M; i++){
+        e(0,i)=SamplePolyCBD(PRF(2, seed, N), 2);
+        N++;
+    }
+/*     PolynomialMatrix<1, PARAM_M> e;
     for(int j=0; j<PARAM_M; j++){
         Polynomial poly(PARAM_N);
         poly.setZero();
@@ -34,9 +52,10 @@ pair<PolynomialMatrix<1, PARAM_M>, PolynomialMatrix<1, PARAM_D>> LPKE::LKeyGen(P
             poly[y]=gaussian_random(0,0.3);
         } 
         e(0,j)=poly;
-    }
+    } */
+   
     PolynomialMatrix<1, PARAM_M> b = s * this->A + e - v;
-
+    cout<< "pene pene"<<endl;
     return {b,s};
 }
 Polynomial bits_times_q_over_2(const std::vector<uint8_t>& message, uint16_t q) {
@@ -66,8 +85,8 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
 
     PolynomialMatrix<1, 1> c; //m.size()*8 = lambda, 256 se m 32 byte
 
-    PolynomialMatrix<PARAM_M, 1> e;
-
+    PolynomialMatrix<PARAM_M, 1> y;
+    
     //uint8_t beta_i=0;
     uint8_t bit=0;
     if(seed.size()!=32){
@@ -78,30 +97,25 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
     uint8_t N = 0;
 
     for(int k=0; k<PARAM_M; k++){
-
-/*         Polynomial poly(PARAM_N);
-        poly.setZero();
-        for(int k=0; k<PARAM_N; k++){
-            if(k%2==0){
-                poly[k]=gaussian_random(0, PARAM_SIGMA_L);
-            }
-            //if(poly[k]<0)poly[k]
-
-        }  */
-
-
-        e(k,0)=SamplePolyCBD_custom(PRF(15, seed, N++),15);//poly;
-        for(int i=0; i<PARAM_N; i++) e(k,0)[i]>1664 ? e(k,0)[i]=-e(k,0)[i]+PARAM_Q : 0;
-
+        y(k,0)=SamplePolyCBD_custom(PRF(15, seed, N++),15);//poly;
+        for(int i=0; i<PARAM_N; i++) y(k,0)[i]>1664 ? y(k,0)[i]=-y(k,0)[i]+PARAM_Q : 0;
     }
 
+    PolynomialMatrix<PARAM_D, 1> e1;
+    for(int i=0; i<PARAM_D; i++){
+        e1(i,0)=SamplePolyCBD(PRF(2, seed, N), 2);
+        N++;
+    }
 
-
+    PolynomialMatrix<1, 1> e2;
+    e2(0,0)=SamplePolyCBD(PRF(2, seed, N), 2);
 
     
-    PolynomialMatrix<1, 1> temp=p*e;
-    PolynomialMatrix<PARAM_D, 1> u=this->A*e;
-
+    cout<< "1"<<endl;
+    PolynomialMatrix<1, 1> temp=p*y+e2;
+    cout<< "2"<<endl;
+    PolynomialMatrix<PARAM_D, 1> u=this->A*y+e1;
+    cout<< "3"<<endl;
     c = temp + m_poly;
 
     ct.u=u;
@@ -158,10 +172,10 @@ bool LPKE::IsLossy(PolynomialMatrix<2 * PARAM_D, PARAM_D * PARAM_K>& T, Polynomi
         }
     }
     //cout<< e <<std::endl;
+    int1024_t norm=0;
     for(int j=0; j<PARAM_M; j++){
-        if(e(j).norm()>this->q/(8*std::sqrt(PARAM_N))){
-            return true;
-        }
+        norm+=e(j).norm();
     } 
+    if(norm > static_cast<int1024_t>(this->q*PARAM_N/(8*std::sqrt(PARAM_M)))) return true;
     return false;
 }

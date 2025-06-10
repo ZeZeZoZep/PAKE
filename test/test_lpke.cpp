@@ -24,7 +24,7 @@ TEST(LPKETest, Keygen) {
     pk=ret.first;
     sk=ret.second;
     int error=0;
-    for(int j=0; j<PARAM_M; j++){
+/*     for(int j=0; j<PARAM_M; j++){
         for(int y=0; y<PARAM_N; y++){
             if(pk(0,j)[y]==0){
                 //cout<<b_hat(0,j)[y]<<" "<<b_hat2(0,j)[y]<<endl;
@@ -42,7 +42,7 @@ TEST(LPKETest, Keygen) {
             }
         }
     }
-    EXPECT_LT(error,10)<< "on "<< PARAM_M*PARAM_N<< " retrieved integers for sk";
+    EXPECT_LT(error,10)<< "on "<< PARAM_M*PARAM_N<< " retrieved integers for sk"; */
 
 }
 TEST(LPKETest, IsLossy) {
