@@ -8,7 +8,7 @@
 #define PARAM_Q 3329
 #define PARAM_K 12
 #define PARAM_N 256
-#define PARAM_D 4
+#define PARAM_D 2
 #if PARAM_D==1
     #define PARAM_SIGMA_L 7
 #elif PARAM_D==2

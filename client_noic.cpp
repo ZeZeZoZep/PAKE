@@ -5,14 +5,13 @@
 #include <boost/asio.hpp>
 #include <iostream>
 #include <vector>
-#include <chrono>
+#include "timerset.h"
 #include "noic.h"
 
 namespace net = boost::asio;
 using tcp = net::ip::tcp;
 //using clock = std::chrono::high_resolution_clock;
 
-using namespace std::chrono;
 
 uint8_t ssid=223;
 string password="password123";
@@ -23,8 +22,8 @@ int main() {
         net::io_context ioc;
         tcp::resolver resolver{ioc};
         tcp::socket socket{ioc};
-
-        auto start = high_resolution_clock::now();
+        TimerSet ts("NoIC", "Exchange");
+        ts.start("Total");
         auto endpoints = resolver.resolve("127.0.0.1", "8080");
         net::connect(socket, endpoints);
 /*         std::cout <<client.Epk.size()<< std::endl;
@@ -51,7 +50,7 @@ int main() {
         client.check(c,auth);
         vector<uint8_t> sessionkey_c = client.derive(c,auth);
         
-        auto end = high_resolution_clock::now();
+        ts.stop("Total");
 
 
         std::cout << "[Client] Exchanged SessionKey (hex): ";
@@ -60,9 +59,7 @@ int main() {
         }
         std::cout << std::endl;
         std::cout << std::endl;
-        auto duration = duration_cast<microseconds>(end - start).count();
-
-        std::cout << "[Client] Tempo totale: " << duration << " microsecondi" << std::endl;
+        ts.commit(PARAM_D);
     } catch (std::exception& e) {
         std::cerr << "[Errore client] " << e.what() << std::endl;
     }
