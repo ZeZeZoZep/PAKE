@@ -23,6 +23,7 @@ set(C_FILE src/random_mgs.c)  # Sostituisci con il file C effettivo
 
 # Specifica i file C++ da compilare
 set(CPP_FILES 
+    src/timerset.cpp
     src/polynomial.cpp
     src/ntt.cpp
     src/int.cpp
@@ -35,6 +36,8 @@ set(CPP_FILES
     src/kem.cpp
     src/ideal_cipher.cpp
     src/ideal_cipher_pake.cpp
+    src/noic.cpp
+
     #main.cpp
 )
 add_library(random_mgs OBJECT ${C_FILE})
@@ -56,3 +59,12 @@ target_link_libraries(pake_server Boost::system OpenSSL::SSL OpenSSL::Crypto)
 # ---- WebSocket Client ----
 add_executable(pake_client client.cpp $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
 target_link_libraries(pake_client Boost::system OpenSSL::SSL OpenSSL::Crypto)
+
+
+# ---- WebSocket Server ----
+add_executable(noic_server server_noic.cpp $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
+target_link_libraries(noic_server Boost::system OpenSSL::SSL OpenSSL::Crypto)
+
+# ---- WebSocket Client ----
+add_executable(noic_client client_noic.cpp $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
+target_link_libraries(noic_client Boost::system OpenSSL::SSL OpenSSL::Crypto)

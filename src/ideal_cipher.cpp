@@ -1,5 +1,8 @@
 #include "ideal_cipher.h"
 
+#include "common.h"
+#include "timerset.h"
+
 using namespace std;
 using namespace boost::multiprecision;
 std::vector<uint8_t> IdealCipher::cpp_int_to_padded_bytes(const cpp_int& val, size_t min_len) {
@@ -52,10 +55,20 @@ std::vector<uint8_t> IdealCipher::aes_ecb_decrypt(const std::vector<uint8_t>& ci
 }
 
 vector<uint8_t> IdealCipher::encrypt_bytes(const vector<uint8_t>& in_bytes) {
-    return aes_ecb_encrypt(in_bytes, this->key);
+    TimerSet ts("ID", "Encrypt");
+    ts.start("Total");
+    auto ret = aes_ecb_encrypt(in_bytes, this->key);
+    ts.stop("Total");
+    ts.commit(PARAM_D);
+    return ret;
 }
 vector<uint8_t> IdealCipher::decrypt_bytes(const vector<uint8_t>& in_bytes) {
-    return aes_ecb_decrypt(in_bytes, this->key);
+    TimerSet ts("ID", "Decrypt");
+    ts.start("Total");
+    auto ret = aes_ecb_decrypt(in_bytes, this->key);
+    ts.stop("Total");
+    ts.commit(PARAM_D);
+    return ret;
     
 }
 
