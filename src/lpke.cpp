@@ -109,8 +109,14 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
     uint8_t N = 0;
 
     for(int k=0; k<PARAM_M; k++){
-        y(k,0)=SamplePolyCBD_custom(PRF(INT8_MAX, seed, N++),INT8_MAX);//poly;
-        for(int i=0; i<PARAM_N; i++) y(k,0)[i]>536867456 ? y(k,0)[i]=-y(k,0)[i]+PARAM_Q : 0;
+        Polynomial poly(PARAM_N);
+        poly.setZero();
+        //poly[0]=P_random();
+        for(int y=0; y<PARAM_N; y+=2){
+            poly[y]=gaussian_random(0,867456);
+            //poly[y]>536867456 ? poly[y]=-poly[y]+PARAM_Q : 0;
+        } 
+        y(k,0)=poly;
     }
 
     PolynomialMatrix<PARAM_D, 1> e1;
