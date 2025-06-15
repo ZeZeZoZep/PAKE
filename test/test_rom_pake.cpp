@@ -8,6 +8,7 @@
 #include "pke.h"
 #include "polynomial_matrix_utils.h"
 #include "hash.h"
+#include "timerset.h"
 
 
 using namespace std;
@@ -44,14 +45,14 @@ vector<uint8_t> d(32);
 vector<uint8_t> c1,c2,bytes,m;
 pair<PolynomialMatrix<1, 2>, PolynomialMatrix<1, 1>> C;
 Cyphertext ct;
-    
+TimerSet ts("PAKE_ROM", "Exchange");
 
 TEST(PakeTest, Setup) {
   
     auto ret = lpke.LSetup();
     A = ret.first;
     T = ret.second;
-
+    ts.start("Total");
     if (RAND_bytes(d.data(), d.size()) != 1) throw std::runtime_error("RAND_bytes failed");
     auto ret2 = pke.KeyGen(d);
     cpk=get<0>(ret2);
@@ -89,6 +90,8 @@ TEST(PakeTest, STEP3) {
     vector<uint8_t> bytes_check = concatVectors(vector<uint8_t>(password.begin(), password.end()), lpk_bytes,c1_check,c2_check);
 
     pair<PolynomialMatrix<1, 2>, PolynomialMatrix<1, 1>> C_check=pke.Encrypt(cpk,rho,bytes_check,m_check);
+    ts.stop("Total");
+    ts.commit(PARAM_D);
 
     EXPECT_EQ(m_check, m);
     EXPECT_EQ(C, C_check);

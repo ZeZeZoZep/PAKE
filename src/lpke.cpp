@@ -1,6 +1,7 @@
 #include "../include/lpke.h"    
 #include "../include/trapdoor_handler.h"
 #include "../include/r.h"
+#include "../include/timerset.h"
 // ✅ Costruttore: inizializza la matrice pubblica `A` e la trapdoor `T`
 LPKE::LPKE() {
     auto setup_result = LSetup();
@@ -25,8 +26,12 @@ pair<PolynomialMatrix<PARAM_D, PARAM_M>, PolynomialMatrix<2 * PARAM_D, PARAM_D *
 // ✅ LKeyGen: Genera chiavi pubblica `pk` e segreta `sk`
 pair<PolynomialMatrix<1, PARAM_M>, PolynomialMatrix<1, PARAM_D>> LPKE::LKeyGen(PolynomialMatrix<1, PARAM_M>& v,vector<uint8_t> seed) const {
     //PolynomialMatrix<1, PARAM_D> s=TrapdoorHandler::generate_uniform_polymatrix<1, PARAM_D>();
+    TimerSet ts("LPKE", "LKeyGen");
+    ts.start("Total");
+    
     PolynomialMatrix<1, PARAM_D> s;
     uint8_t bit=0;
+    ts.start("sample");
     if(seed.size()!=32){
         seed.resize(32);
         if (RAND_bytes(seed.data(), seed.size()) != 1) throw std::runtime_error("RAND_bytes failed");
@@ -43,6 +48,7 @@ pair<PolynomialMatrix<1, PARAM_M>, PolynomialMatrix<1, PARAM_D>> LPKE::LKeyGen(P
         e(0,i)=SamplePolyCBD(PRF(2, seed, N), 2);
         N++;
     }
+    ts.stop("sample");
 /*     PolynomialMatrix<1, PARAM_M> e;
     for(int j=0; j<PARAM_M; j++){
         Polynomial poly(PARAM_N);
@@ -53,9 +59,12 @@ pair<PolynomialMatrix<1, PARAM_M>, PolynomialMatrix<1, PARAM_D>> LPKE::LKeyGen(P
         } 
         e(0,j)=poly;
     } */
-   
+    ts.start("compute_b");
     PolynomialMatrix<1, PARAM_M> b = s * this->A + e - v;
-    cout<< "pene pene"<<endl;
+    ts.stop("compute_b");
+ 
+    ts.stop("Total");
+    ts.commit(PARAM_D);
     return {b,s};
 }
 Polynomial bits_times_q_over_2(const std::vector<uint8_t>& message, uint32_t q) {
@@ -74,6 +83,8 @@ Polynomial bits_times_q_over_2(const std::vector<uint8_t>& message, uint32_t q) 
 }
 // ✅ LEnc: Cifra un messaggio `m` con la chiave pubblica `pk`
 Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, PolynomialMatrix<1, PARAM_M>& v, vector<uint8_t> seed) const {
+    TimerSet ts("LPKE", "LEnc");
+    ts.start("Total");
     Cyphertext ct;
     PolynomialMatrix<1, PARAM_M> p = PolynomialMatrix<1, PARAM_M>::Zero();
     p = pk + v;
@@ -88,6 +99,7 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
     PolynomialMatrix<PARAM_M, 1> y;
     
     //uint8_t beta_i=0;
+    ts.start("sample");
     uint8_t bit=0;
     if(seed.size()!=32){
         seed.resize(32);
@@ -109,21 +121,26 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
 
     PolynomialMatrix<1, 1> e2;
     e2(0,0)=SamplePolyCBD(PRF(2, seed, N), 2);
-
+    ts.stop("sample");
     
-    cout<< "1"<<endl;
+    ts.start("compute");
     PolynomialMatrix<1, 1> temp=p*y+e2;
-    cout<< "2"<<endl;
+
     PolynomialMatrix<PARAM_D, 1> u=this->A*y+e1;
-    cout<< "3"<<endl;
+    ts.stop("compute");
+
     c = temp + m_poly;
 
     ct.u=u;
     ct.c=c;
+
+    ts.stop("Total");
+    ts.commit(PARAM_D);
     return ct;
 }
 
 std::vector<uint8_t> decode_to_bytes(Polynomial d, uint32_t q) {
+
     if (d.size() != 256)
         throw std::invalid_argument("Il vettore d deve contenere 256 elementi.");
 
@@ -140,11 +157,14 @@ std::vector<uint8_t> decode_to_bytes(Polynomial d, uint32_t q) {
 }
 // ✅ LDec: Decifra un `Cyphertext` con la chiave segreta `sk`
 vector<uint8_t> LPKE::LDec(PolynomialMatrix<1, PARAM_D>& sk, Cyphertext& ct) const {
-
+    TimerSet ts("LPKE", "LDec");
+    ts.start("Total");
 
     PolynomialMatrix<1,1> d = ct.c - sk * ct.u;
     Polynomial temp = d(0,0);
     //cout<< temp<<endl;
+    ts.stop("Total");
+    ts.commit(PARAM_D);
     return decode_to_bytes(temp,this->q);
 }
 double LPKE::compute_norm(PolynomialMatrix<1, PARAM_M>& e){

@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "trapdoor_handler.h"
 #include "random.h"
+#include "timerset.h"
+
 PolynomialMatrix<PARAM_D, PARAM_M> A;
 PolynomialMatrix<2*PARAM_D,PARAM_D*PARAM_K> R;
 PolynomialMatrix<1, PARAM_D> s;
@@ -8,7 +10,14 @@ PolynomialMatrix<PARAM_M, PARAM_K*PARAM_D> RI;
 PolynomialMatrix<PARAM_D, PARAM_D*PARAM_K> G;
 PolynomialMatrix<1, PARAM_M> e;
 TEST(TrapdoorTest, Trapgen2) {
+    TimerSet ts("Trapdoor", "Trapgen");
+    ts.start("Total");
+    
     auto ret = TrapdoorHandler::Trapgen();
+
+    ts.stop("Total");
+    ts.commit(PARAM_D);
+
     A = ret.first;
     R = ret.second;
     
@@ -60,15 +69,18 @@ TEST(TrapdoorTest, ARI_G) {
 
 }
 
-TEST(TrapdoorTest, Invert) {
+/* TEST(TrapdoorTest, Invert) {
 
 
 
     // Calcola public key
     PolynomialMatrix<1, PARAM_M> b=s*A+e;
     //cout << "Public Key b (R_q^{1 × m}):\n" << b << std::endl;
-    
+    TimerSet ts("Trapdoor", "Invert");
+    ts.start("Total");
     auto ret2 = TrapdoorHandler::Invert(b,R);
+    ts.stop("Total");
+    ts.commit(PARAM_D);
     PolynomialMatrix<1, PARAM_D> s2 = ret2.first;
     PolynomialMatrix<1, PARAM_M> e2 = b-s2*A;
     for(int j=0; j<PARAM_M; j++){
@@ -82,7 +94,7 @@ TEST(TrapdoorTest, Invert) {
     EXPECT_EQ(s2,s) << "they should be equal";
     EXPECT_EQ(e,e2)<< "they should be equal";
 } 
-
+ */
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

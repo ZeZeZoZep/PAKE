@@ -33,8 +33,7 @@ set(CPP_FILES
     src/pke.cpp
     src/hash.cpp
     src/kem.cpp
-    src/ideal_cipher.cpp
-    src/ideal_cipher_pake.cpp
+    src/timerset.cpp
     #main.cpp
 )
 add_library(random_mgs OBJECT ${C_FILE})
@@ -50,9 +49,9 @@ enable_testing()
 add_subdirectory(test)
 
 # ---- WebSocket Server ----
-add_executable(pake_server server.cpp $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
-target_link_libraries(pake_server Boost::system OpenSSL::SSL OpenSSL::Crypto)
+#add_executable(pake_server server.cpp $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
+#target_link_libraries(pake_server Boost::system OpenSSL::SSL OpenSSL::Crypto)
 
 # ---- WebSocket Client ----
-add_executable(pake_client client.cpp $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
-target_link_libraries(pake_client Boost::system OpenSSL::SSL OpenSSL::Crypto)
+#add_executable(pake_client client.cpp $<TARGET_OBJECTS:random_mgs> ${CPP_FILES})
+#target_link_libraries(pake_client Boost::system OpenSSL::SSL OpenSSL::Crypto)
