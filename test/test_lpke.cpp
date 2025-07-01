@@ -53,7 +53,7 @@ TEST(LPKETest, IsLossy) {
         poly.setZero();
         //poly[0]=P_random();
         for(int y=0; y<PARAM_N; y++){
-            poly[y]=3;
+            poly[y]=1000;
             //if(poly[y]<0)poly[y]=poly[y]*(-1);
         } 
         v(0,j)=poly;

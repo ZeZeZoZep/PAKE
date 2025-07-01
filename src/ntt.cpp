@@ -18,14 +18,18 @@ uint16_t bitrev7(uint16_t x) {
 
 // Recupera il valore ζ₂BitRev7(i)+1 modulo q
 uint16_t getZeta2(uint16_t i) {
-    uint16_t rev = bitrev7(i);
-    return (arr[rev] + 1) % q;
+    // bit-reverse di (i+1) a 7 bit
+    uint16_t rev = 2*bitrev7(i)+ 1;
+    // arr[rev] deve già contenere ζ^rev mod q, non serve +1
+    return (arr[rev] % q + q) % q;
 }
 
 // Base-case multiplication con Eigen
 Vector2i baseCaseMultiply(Vector2i f, Vector2i g, uint16_t zeta) {
     uint32_t t = ((uint32_t) f[1] * g[1]) % q;
-    int h0 = ((uint32_t) f[0] * g[0] + (uint32_t) zeta * t) % q;
+    uint32_t temp= ((uint32_t)zeta*t) % q;
+    int h0 = (int)(((uint32_t)f[0]*g[0] + temp) % q);
+    if (h0 < 0) h0 += q;
     int h1 = ((uint32_t) f[0] * g[1] + (uint32_t) f[1] * g[0]) % q;
     return Vector2i(h0, h1);
 }
@@ -53,7 +57,7 @@ Polynomial multiplyNTTs(const Polynomial &f, const Polynomial &g) {
     Polynomial h(N);
     for (int i = 0; i < N / 2; i++) {
         uint16_t zeta = getZeta2(i);
-        Vector2i result = baseCaseMultiply(f.segment<2>(2 * i), g.segment<2>(2 * i), zeta);
+        Vector2i result = baseCaseMultiply(f.segment<2>(2 * i), g.segment<2>(2 * i), (arr[i] % q + q) % q);
         h.segment<2>(2 * i) = result;
     }
     for (int i = 0; i < h.size(); i++) {

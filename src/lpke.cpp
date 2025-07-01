@@ -34,7 +34,7 @@ pair<PolynomialMatrix<1, PARAM_M>, PolynomialMatrix<1, PARAM_D>> LPKE::LKeyGen(P
     }
     uint8_t N = 0;
     for(int i=0; i<PARAM_D; i++){
-        s(0,i)=SamplePolyCBD_custom(PRF(15, seed, N), 15);
+        s(0,i)=SamplePolyCBD(PRF(15, seed, N), 15);
         N++;
         for(int k=0; k<PARAM_N; k++) s(0,i)[k]>1664 ? s(0,i)[k]=-s(0,i)[k]+PARAM_Q : 0;
     }
@@ -97,7 +97,7 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
     uint8_t N = 0;
 
     for(int k=0; k<PARAM_M; k++){
-        y(k,0)=SamplePolyCBD_custom(PRF(15, seed, N++),15);//poly;
+        y(k,0)=SamplePolyCBD(PRF(15, seed, N++),15);//poly;
         for(int i=0; i<PARAM_N; i++) y(k,0)[i]>1664 ? y(k,0)[i]=-y(k,0)[i]+PARAM_Q : 0;
     }
 
