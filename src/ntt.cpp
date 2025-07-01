@@ -62,7 +62,7 @@ Polynomial multiplyNTTs(const Polynomial &f, const Polynomial &g) {
     Polynomial h(N);
     for (int i = 0; i < N / 2; i++) {
         uint32_t zeta = getZeta2(i);
-        Vector2i result = baseCaseMultiply(f.segment<2>(2 * i), g.segment<2>(2 * i), zeta);
+        Vector2i result = baseCaseMultiply(f.segment<2>(2 * i), g.segment<2>(2 * i),(arr[i] % q + q) % q);
         h.segment<2>(2 * i) = result;
     }
     for (int i = 0; i < h.size(); i++) {

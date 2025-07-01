@@ -39,9 +39,9 @@ pair<PolynomialMatrix<1, PARAM_M>, PolynomialMatrix<1, PARAM_D>> LPKE::LKeyGen(P
     }
     uint8_t N = 0;
     for(int i=0; i<PARAM_D; i++){
-        s(0,i)=SamplePolyCBD_custom(PRF(INT8_MAX, seed, N), INT8_MAX);
+        s(0,i)=SamplePolyCBD(PRF(2, seed, N), 2);
         N++;
-        for(int k=0; k<PARAM_N; k++) s(0,i)[k]>536867456 ? s(0,i)[k]=-s(0,i)[k]+PARAM_Q : 0;
+        //for(int k=0; k<PARAM_N; k++) s(0,i)[k]>536867456 ? s(0,i)[k]=-s(0,i)[k]+PARAM_Q : 0;
     }
     PolynomialMatrix<1, PARAM_M> e;
     for(int i=0; i<PARAM_M; i++){
@@ -110,12 +110,15 @@ Cyphertext LPKE::LEnc(PolynomialMatrix<1, PARAM_M>& pk, vector<uint8_t>& m, Poly
 
     for(int k=0; k<PARAM_M; k++){
         Polynomial poly(PARAM_N);
-        poly.setZero();
+        poly=SamplePolyCBD(PRF(2, seed, N), 2);
+        N++;
+ /*        poly.setZero();
+        
         //poly[0]=P_random();
-        for(int y=0; y<PARAM_N; y+=2){
-            poly[y]=gaussian_random(0,867456);
+        for(int y=0; y<PARAM_N; y+=1){//867456
+            poly[y]=(gaussian_random(0,50)%PARAM_Q + PARAM_Q)%PARAM_Q ;
             //poly[y]>536867456 ? poly[y]=-poly[y]+PARAM_Q : 0;
-        } 
+        }  */
         y(k,0)=poly;
     }
 
