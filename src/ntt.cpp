@@ -25,18 +25,12 @@ uint32_t getZeta2(uint32_t i) {
 // Base-case multiplication con Eigen
 Vector2i baseCaseMultiply(const Vector2i& f, const Vector2i& g, uint32_t zeta)
 {
-    // prodotti a 64 bit, riduzione mod q immediata
-    uint32_t t  = (uint64_t)f[1] * g[1] % q;            // f1·g1  mod q
-    uint32_t p0 = (uint64_t)f[0] * g[0] % q;            // f0·g0  mod q
-    uint32_t p1 = (uint64_t)zeta * t   % q;             // zeta·t mod q
-    uint32_t h0 = p0 + p1;
-    if (h0 >= q) h0 -= q;                               // somma < 2q → un cond-sub
-
-    uint32_t h1  = ((uint64_t)f[0] * g[1] % q +
-                    (uint64_t)f[1] * g[0] % q);
-    if (h1 >= q) h1 -= q;
-
-    return Vector2i{h0, h1};                            // Vector2i unsigned a 32 bit
+    uint32_t t = ((uint64_t) f[1] * g[1]) % q;
+    uint32_t temp= ((uint64_t)zeta*t) % q;
+    int h0 = (int)(((uint64_t)f[0]*g[0] + temp) % q);
+    if (h0 < 0) h0 += q;
+    int h1 = ((uint64_t) f[0] * g[1] + (uint64_t) f[1] * g[0]) % q;
+    return Vector2i(h0, h1);
 }
 
 // Somma due rappresentazioni NTT con Eigen
